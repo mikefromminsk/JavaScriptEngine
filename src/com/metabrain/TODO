@@ -1,0 +1,23 @@
+// TODO SGDB: change SimpleGraphDB package to com.metabrain
+// TODO SGDB: add SGDB all clear
+// TODO SGDB: to resolve problem with out of hard memory in SGDB
+// TODO SGDB: create interface of initialization
+// TODO SGDB: upgrade SGBD with stream data and big data
+// TODO SGDB: include exist files in FS
+// TODO JSE: link = 8 bytes = [type,link]
+// TODO JSE: all external funcs in JSE
+// TODO JSE: add VCS to JSE
+// TODO JSE: add DHT to JSE
+// TODO JSE: change JS code loading way
+// TODO JSE: change visualization of nodes
+// TODO JSE: create simple http UI
+// TODO JSE: find fast replacement of array() in php
+// TODO JSE: adapt JSE to android jar lib
+// TODO JSE: create restorer JS code from JS AST
+// TODO JSE: add WebSocket support
+// TODO JSE: create format of nodes storage in json format
+// TODO finish test: add final streaming audio and video
+// TODO finish test: remote control of android tel from JSE
+// TODO finish test: implement soft search
+// TODO UI: create intellij plugin instead UI
+// TODO UI: create simple wiki
