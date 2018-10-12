@@ -1,16 +1,31 @@
 {
-  "123": {
-    "node_path": "php/prototypes",
-    "node_local": "String",
-    "lib_path": "!/wamp/www/infonet/api/php/modules/string.php"
+  "node1": {
+    // exept true false
+    "path": "/reverse2",
+    "local": "!wefwef"
   },
-  "nodes": [
-    {
-      "node_id": "$123",
-      "node_local": "reverse",
-      "ext_name": "!ext_string_reverse",
-      "node_type": "ext_func",
-      "library": "$123"
-    }
-  ]
+  "node2": {
+    "start": "/root/dev",
+    "path": "/reverse",
+    "name": "!title",
+    "local": ["node1"],
+    "data": "reverse",
+    "type": "Object",
+    "string": "!new title",
+    "number": 30,
+    "bool": true,
+    "link": "node1",
+    "array": [
+      "node1",
+      "node2",
+      true,
+      30
+    ]
+  }
 }
+
+/* parse priority
+        node_path
+        node_local
+        type
+        data

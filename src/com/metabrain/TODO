@@ -17,11 +17,13 @@
 // TODO DJS: adapt DJS to android jar lib
 // TODO DJS: create restorer JS code from JS AST
 // TODO DJS: create format of nodes storage in json format
+// TODO DJS: create save and loading to nds format
 // TODO DJS: net security
 // TODO DJS: add getters and setters
 // TODO DJS: multithreading
 // TODO DJS: write code in c
 // TODO DJS: double run problem
+// TODO DJS: solve problem with go to up in local links
 // TODO UI: create intellij plugin instead UI
 // TODO UI: create simple wiki
 // TODO UI: settings memory size
