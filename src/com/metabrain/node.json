@@ -1,0 +1,16 @@
+{
+  "123": {
+    "node_path": "php/prototypes",
+    "node_local": "String",
+    "lib_path": "!/wamp/www/infonet/api/php/modules/string.php"
+  },
+  "nodes": [
+    {
+      "node_id": "$123",
+      "node_local": "reverse",
+      "ext_name": "!ext_string_reverse",
+      "node_type": "ext_func",
+      "library": "$123"
+    }
+  ]
+}
