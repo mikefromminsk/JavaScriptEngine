@@ -4,20 +4,39 @@
 // TODO SGDB: create interface of initialization
 // TODO SGDB: upgrade SGBD with stream data and big data
 // TODO SGDB: include exist files in FS
-// TODO JSE: link = 8 bytes = [type,link]
-// TODO JSE: all external funcs in JSE
-// TODO JSE: add VCS to JSE
-// TODO JSE: add DHT to JSE
-// TODO JSE: change JS code loading way
-// TODO JSE: change visualization of nodes
-// TODO JSE: create simple http UI
-// TODO JSE: find fast replacement of array() in php
-// TODO JSE: adapt JSE to android jar lib
-// TODO JSE: create restorer JS code from JS AST
-// TODO JSE: add WebSocket support
-// TODO JSE: create format of nodes storage in json format
-// TODO finish test: add final streaming audio and video
-// TODO finish test: remote control of android tel from JSE
-// TODO finish test: implement soft search
+// TODO SGDB: js script generator
+// TODO DJS: link = 8 bytes = [type,link]
+// TODO DJS: all external funcs in DJS
+// TODO DJS: add VCS to DJS
+// TODO DJS: add DHT to DJS darkjs.net
+// TODO DJS: add WebSocket support
+// TODO DJS: change JS code loading way
+// TODO DJS: change visualization of nodes
+// TODO DJS: create simple http UI
+// TODO DJS: find fast replacement of array() in php
+// TODO DJS: adapt DJS to android jar lib
+// TODO DJS: create restorer JS code from JS AST
+// TODO DJS: create format of nodes storage in json format
+// TODO DJS: net security
+// TODO DJS: add getters and setters
+// TODO DJS: multithreading
+// TODO DJS: write code in c
+// TODO DJS: double run problem
 // TODO UI: create intellij plugin instead UI
 // TODO UI: create simple wiki
+// TODO UI: settings memory size
+// TODO UI: adapt to android
+// TODO UI: styling purpule and blue masseffect 3
+// TODO finish test: add final streaming audio and video
+// TODO finish test: remote control of android tel from DJS
+// TODO finish test: implement soft search
+// TODO finish test: itsupport
+// TODO finish test: bsync copy
+// TODO finish test: quadracopter
+// TODO finish test: app store
+// TODO finish test: vpn
+// TODO finish test: videohosting
+// TODO finish test: pair programming
+// TODO finish test: to combine all languages
+// TODO finish test: db translator to graph db
+// TODO finish test: messenger
