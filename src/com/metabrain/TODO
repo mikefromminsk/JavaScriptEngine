@@ -5,6 +5,7 @@
 // TODO SGDB: upgrade SGBD with stream data and big data
 // TODO SGDB: include exist files in FS
 // TODO SGDB: js script generator
+// TODO DJS: create format of nodes storage in json format
 // TODO DJS: link = 8 bytes = [type,link]
 // TODO DJS: all external funcs in DJS
 // TODO DJS: add VCS to DJS
@@ -16,7 +17,6 @@
 // TODO DJS: find fast replacement of array() in php
 // TODO DJS: adapt DJS to android jar lib
 // TODO DJS: create restorer JS code from JS AST
-// TODO DJS: create format of nodes storage in json format
 // TODO DJS: net security
 // TODO DJS: add getters and setters
 // TODO DJS: multithreading
