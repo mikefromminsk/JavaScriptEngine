@@ -30,4 +30,8 @@ public class JSParser {
         AstRoot node = new Parser(env).parse(reader, file, 1);
         node.visitAll(new Printer());
     }
+
+    public static void parse(String source, Node node) {
+
+    }
 }
