@@ -26,7 +26,6 @@ class NodeTest {
                     Runner.run(node);
                     for (Long node_id : node.getLocal()){
 
-                        JsonObject node = Formatter.toString(node);
                     }
 
 

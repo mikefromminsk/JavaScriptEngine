@@ -61,17 +61,17 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
-    private void appendDataBody(ArrayList<Long> links, Long nodeId, LinkType type){
-        if (nodeId != null){
+    private void appendDataBody(ArrayList<Long> links, Long nodeId, byte type) {
+        if (nodeId != null && links != null) {
             // TODO change type of convert
             byte[] bytes = Bytes.fromLong(nodeId);
-            bytes[0] = type.getValue();
+            bytes[0] = type;
             long dataLink = Bytes.toLong(bytes);
             links.add(dataLink);
         }
     }
 
-    private void appendArrayBody(ArrayList<Long> links, ArrayList<Long> nodeIdList, LinkType type){
+    private void appendArrayBody(ArrayList<Long> links, ArrayList<Long> nodeIdList, byte type) {
         if (nodeIdList != null && nodeIdList.size() > 0)
             for (Long nodeId : nodeIdList)
                 appendDataBody(links, nodeId, type);
@@ -99,7 +99,27 @@ class Node implements InfinityArrayCell {
 
     @Override
     public void parse(byte[] data) {
-
+        long[] links = Bytes.toLongArray(data);
+        for (long dataLink : links) {
+            byte[] bytes = Bytes.fromLong(dataLink);
+            dataLink = Bytes.toLong(bytes);
+            switch (bytes[0]){
+                case LinkType.VALUE: value = dataLink; break;
+                case LinkType.SOURCE: source = dataLink; break;
+                case LinkType.TITLE: title = dataLink; break;
+                case LinkType.SET: set = dataLink; break;
+                case LinkType.TRUE: _true = dataLink; break;
+                case LinkType.ELSE: _else = dataLink; break;
+                case LinkType.EXIT: exit = dataLink; break;
+                case LinkType.WHILE: _while = dataLink; break;
+                case LinkType.IF: _if = dataLink; break;
+                case LinkType.PROTOTYPE: prototype = dataLink; break;
+                case LinkType.BODY: body= dataLink; break;
+                case LinkType.LOCAL: local.add(dataLink); break;
+                case LinkType.PARAM: param.add(dataLink); break;
+                case LinkType.NEXT: next.add(dataLink); break;
+            }
+        }
     }
 
     public Long getId() {
