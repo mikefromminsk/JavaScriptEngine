@@ -1,5 +1,6 @@
 package com.metabrain.djs;
 
+import refactored.Bytes;
 import refactored.InfinityArray;
 import refactored.InfinityArrayCell;
 
@@ -22,6 +23,18 @@ class Node implements InfinityArrayCell {
     private Long _if;
     private Long prototype;
     private Long body;
+
+    private Node valueNode;
+    private Node sourceNode;
+    private Node titleNode;
+    private Node setNode;
+    private Node trueNode;
+    private Node elseNode;
+    private Node exitNode;
+    private Node whileNode;
+    private Node ifNode;
+    private Node prototypeNode;
+    private Node bodyNode;
 
     private ArrayList<Long> local = new ArrayList<>();
     private ArrayList<Long> param = new ArrayList<>();
@@ -47,15 +60,46 @@ class Node implements InfinityArrayCell {
         getStorage().set(id, this);
         return this;
     }
-    
-    @Override
-    public void parse(byte[] data) {
 
+    private void appendDataBody(ArrayList<Long> links, Long nodeId, LinkType type){
+        if (nodeId != null){
+            // TODO change type of convert
+            byte[] bytes = Bytes.fromLong(nodeId);
+            bytes[0] = type.getValue();
+            long dataLink = Bytes.toLong(bytes);
+            links.add(dataLink);
+        }
+    }
+
+    private void appendArrayBody(ArrayList<Long> links, ArrayList<Long> nodeIdList, LinkType type){
+        if (nodeIdList != null && nodeIdList.size() > 0)
+            for (Long nodeId : nodeIdList)
+                appendDataBody(links, nodeId, type);
     }
 
     @Override
     public byte[] build() {
-        return new byte[0];
+        ArrayList<Long> links = new ArrayList<>();
+        appendDataBody(links, value, LinkType.VALUE);
+        appendDataBody(links, source, LinkType.SOURCE);
+        appendDataBody(links, title, LinkType.TITLE);
+        appendDataBody(links, set, LinkType.SET);
+        appendDataBody(links, _true, LinkType.TRUE);
+        appendDataBody(links, _else, LinkType.ELSE);
+        appendDataBody(links, exit, LinkType.EXIT);
+        appendDataBody(links, _while, LinkType.WHILE);
+        appendDataBody(links, _if, LinkType.IF);
+        appendDataBody(links, prototype, LinkType.PROTOTYPE);
+        appendDataBody(links, body, LinkType.BODY);
+        appendArrayBody(links, local, LinkType.LOCAL);
+        appendArrayBody(links, param, LinkType.PARAM);
+        appendArrayBody(links, next, LinkType.NEXT);
+        return Bytes.fromLongList(links);
+    }
+
+    @Override
+    public void parse(byte[] data) {
+
     }
 
     public Long getId() {
@@ -85,12 +129,14 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
+
     public Long getValue() {
         return value;
     }
 
     public Node setValue(Long value) {
         this.value = value;
+        this.valueNode = null;
         return this;
     }
 
@@ -100,6 +146,7 @@ class Node implements InfinityArrayCell {
 
     public Node setSource(Long source) {
         this.source = source;
+        this.sourceNode = null;
         return this;
     }
 
@@ -109,6 +156,7 @@ class Node implements InfinityArrayCell {
 
     public Node setTitle(Long title) {
         this.title = title;
+        this.titleNode = null;
         return this;
     }
 
@@ -118,6 +166,7 @@ class Node implements InfinityArrayCell {
 
     public Node setSet(Long set) {
         this.set = set;
+        this.setNode = null;
         return this;
     }
 
@@ -127,6 +176,7 @@ class Node implements InfinityArrayCell {
 
     public Node setTrue(Long _true) {
         this._true = _true;
+        this.trueNode = null;
         return this;
     }
 
@@ -136,6 +186,7 @@ class Node implements InfinityArrayCell {
 
     public Node setElse(Long _else) {
         this._else = _else;
+        this.elseNode = null;
         return this;
     }
 
@@ -145,6 +196,7 @@ class Node implements InfinityArrayCell {
 
     public Node setExit(Long exit) {
         this.exit = exit;
+        this.exitNode = null;
         return this;
     }
 
@@ -154,6 +206,7 @@ class Node implements InfinityArrayCell {
 
     public Node setWhile(Long _while) {
         this._while = _while;
+        this.whileNode = null;
         return this;
     }
 
@@ -163,6 +216,7 @@ class Node implements InfinityArrayCell {
 
     public Node setIf(Long _if) {
         this._if = _if;
+        this.trueNode = null;
         return this;
     }
 
@@ -172,6 +226,7 @@ class Node implements InfinityArrayCell {
 
     public Node setPrototype(Long prototype) {
         this.prototype = prototype;
+        this.prototypeNode = null;
         return this;
     }
 
@@ -181,6 +236,7 @@ class Node implements InfinityArrayCell {
 
     public Node setBody(Long body) {
         this.body = body;
+        this.bodyNode = null;
         return this;
     }
 
@@ -209,5 +265,53 @@ class Node implements InfinityArrayCell {
     public Node setNext(ArrayList<Long> next) {
         this.next = next;
         return this;
+    }
+
+    private Node getLinkNode(Long nodeId) {
+        return nodeId == null ? null : (Node) getStorage().get(nodeId, new Node());
+    }
+
+    public Node getValueNode() {
+        return valueNode = getLinkNode(value);
+    }
+
+    public Node getSourceNode() {
+        return sourceNode = getLinkNode(source);
+    }
+
+    public Node getTitleNode() {
+        return titleNode = getLinkNode(title);
+    }
+
+    public Node getSetNode() {
+        return setNode = getLinkNode(set);
+    }
+
+    public Node getTrueNode() {
+        return trueNode = getLinkNode(_true);
+    }
+
+    public Node getElseNode() {
+        return elseNode = getLinkNode(_else);
+    }
+
+    public Node getExitNode() {
+        return exitNode = getLinkNode(exit);
+    }
+
+    public Node getWhileNode() {
+        return whileNode = getLinkNode(_while);
+    }
+
+    public Node getIfNode() {
+        return ifNode = getLinkNode(_if);
+    }
+
+    public Node getPrototypeNode() {
+        return prototypeNode = getLinkNode(prototype);
+    }
+
+    public Node getBodyNode() {
+        return bodyNode = getLinkNode(body);
     }
 }
