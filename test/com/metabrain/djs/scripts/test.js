@@ -1,5 +1,9 @@
 
-function ssds(){
+function first(){
+    return 12;
+}
+
+function second(){
     return 12;
 }
 

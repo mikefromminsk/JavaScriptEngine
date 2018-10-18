@@ -13,6 +13,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NodeTest {
 
+
+
+    @Test
+    void testNodeLocal() {
+        Node node = new Node().makeLocal().commit();
+    }
+/*
     @Test
     void testNode() {
         File scriptsDir = new File(NodeTest.class.getPackage().getName().replace('.', '/') + "scripts");
@@ -34,5 +41,5 @@ class NodeTest {
                 }
             }
         assertEquals(1, 1);
-    }
+    }*/
 }
