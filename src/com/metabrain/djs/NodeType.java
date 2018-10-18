@@ -1,20 +1,11 @@
 package com.metabrain.djs;
 
-public enum NodeType {
-    VAR((byte) 0),
-    BOOL((byte) 1),
-    NUMBER((byte) 2),
-    STRING((byte) 3),
-    ARRAY((byte) 4),
-    OBJECT((byte) 5);
-
-    private final byte value;
-
-    private NodeType(byte value) {
-        this.value = value;
-    }
-
-    public byte getValue() {
-        return value;
-    }
+public class  NodeType {
+    public static final byte VAR = 0;
+    public static final byte DATA = 1;
+    public static final byte BOOL = 2;
+    public static final byte NUMBER = 3;
+    public static final byte STRING = 4;
+    public static final byte ARRAY = 5;
+    public static final byte OBJECT = 6;
 }

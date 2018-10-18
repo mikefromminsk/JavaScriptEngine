@@ -1,8 +1,7 @@
 package com.metabrain.djs;
 
-import refactored.Bytes;
-import refactored.InfinityArray;
-import refactored.InfinityArrayCell;
+import com.metabrain.gdb.Bytes;
+import com.metabrain.gdb.InfinityArrayCell;
 
 import java.util.ArrayList;
 
@@ -10,7 +9,7 @@ class Node implements InfinityArrayCell {
 
     private Long id;
     private byte[] data;
-    private NodeType type;
+    private byte type;
 
     private Long value;
     private Long source;
@@ -24,40 +23,23 @@ class Node implements InfinityArrayCell {
     private Long prototype;
     private Long body;
 
-    private Node valueNode;
-    private Node sourceNode;
-    private Node titleNode;
-    private Node setNode;
-    private Node trueNode;
-    private Node elseNode;
-    private Node exitNode;
-    private Node whileNode;
-    private Node ifNode;
-    private Node prototypeNode;
-    private Node bodyNode;
-
     private ArrayList<Long> local = new ArrayList<>();
     private ArrayList<Long> param = new ArrayList<>();
     private ArrayList<Long> next = new ArrayList<>();
 
-    private static final String storageID = "nodes";
-    private static InfinityArray storage;
-
-    private static InfinityArray getStorage() {
-        if (storage == null)
-            storage = new InfinityArray(storageID);
-        return storage;
-    }
-
     Node() {
+        setType(NodeType.VAR);
     }
 
     Node(long node_id) {
-        getStorage().get(node_id, this);
+        NodeStorage.getInstance().get(node_id, this);
     }
 
     public Node commit() {
-        getStorage().set(id, this);
+        if (id == null)
+            NodeStorage.getInstance().add(this);
+        else
+            NodeStorage.getInstance().set(id, this);
         return this;
     }
 
@@ -103,21 +85,49 @@ class Node implements InfinityArrayCell {
         for (long dataLink : links) {
             byte[] bytes = Bytes.fromLong(dataLink);
             dataLink = Bytes.toLong(bytes);
-            switch (bytes[0]){
-                case LinkType.VALUE: value = dataLink; break;
-                case LinkType.SOURCE: source = dataLink; break;
-                case LinkType.TITLE: title = dataLink; break;
-                case LinkType.SET: set = dataLink; break;
-                case LinkType.TRUE: _true = dataLink; break;
-                case LinkType.ELSE: _else = dataLink; break;
-                case LinkType.EXIT: exit = dataLink; break;
-                case LinkType.WHILE: _while = dataLink; break;
-                case LinkType.IF: _if = dataLink; break;
-                case LinkType.PROTOTYPE: prototype = dataLink; break;
-                case LinkType.BODY: body= dataLink; break;
-                case LinkType.LOCAL: local.add(dataLink); break;
-                case LinkType.PARAM: param.add(dataLink); break;
-                case LinkType.NEXT: next.add(dataLink); break;
+            switch (bytes[0]) {
+                case LinkType.VALUE:
+                    value = dataLink;
+                    break;
+                case LinkType.SOURCE:
+                    source = dataLink;
+                    break;
+                case LinkType.TITLE:
+                    title = dataLink;
+                    break;
+                case LinkType.SET:
+                    set = dataLink;
+                    break;
+                case LinkType.TRUE:
+                    _true = dataLink;
+                    break;
+                case LinkType.ELSE:
+                    _else = dataLink;
+                    break;
+                case LinkType.EXIT:
+                    exit = dataLink;
+                    break;
+                case LinkType.WHILE:
+                    _while = dataLink;
+                    break;
+                case LinkType.IF:
+                    _if = dataLink;
+                    break;
+                case LinkType.PROTOTYPE:
+                    prototype = dataLink;
+                    break;
+                case LinkType.BODY:
+                    body = dataLink;
+                    break;
+                case LinkType.LOCAL:
+                    local.add(dataLink);
+                    break;
+                case LinkType.PARAM:
+                    param.add(dataLink);
+                    break;
+                case LinkType.NEXT:
+                    next.add(dataLink);
+                    break;
             }
         }
     }
@@ -131,11 +141,11 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
-    public NodeType getType() {
+    public byte getType() {
         return type;
     }
 
-    public Node setType(NodeType type) {
+    public Node setType(byte type) {
         this.type = type;
         return this;
     }
@@ -156,7 +166,6 @@ class Node implements InfinityArrayCell {
 
     public Node setValue(Long value) {
         this.value = value;
-        this.valueNode = null;
         return this;
     }
 
@@ -166,7 +175,6 @@ class Node implements InfinityArrayCell {
 
     public Node setSource(Long source) {
         this.source = source;
-        this.sourceNode = null;
         return this;
     }
 
@@ -176,7 +184,6 @@ class Node implements InfinityArrayCell {
 
     public Node setTitle(Long title) {
         this.title = title;
-        this.titleNode = null;
         return this;
     }
 
@@ -186,7 +193,6 @@ class Node implements InfinityArrayCell {
 
     public Node setSet(Long set) {
         this.set = set;
-        this.setNode = null;
         return this;
     }
 
@@ -196,7 +202,6 @@ class Node implements InfinityArrayCell {
 
     public Node setTrue(Long _true) {
         this._true = _true;
-        this.trueNode = null;
         return this;
     }
 
@@ -206,7 +211,6 @@ class Node implements InfinityArrayCell {
 
     public Node setElse(Long _else) {
         this._else = _else;
-        this.elseNode = null;
         return this;
     }
 
@@ -216,7 +220,6 @@ class Node implements InfinityArrayCell {
 
     public Node setExit(Long exit) {
         this.exit = exit;
-        this.exitNode = null;
         return this;
     }
 
@@ -226,7 +229,6 @@ class Node implements InfinityArrayCell {
 
     public Node setWhile(Long _while) {
         this._while = _while;
-        this.whileNode = null;
         return this;
     }
 
@@ -236,7 +238,6 @@ class Node implements InfinityArrayCell {
 
     public Node setIf(Long _if) {
         this._if = _if;
-        this.trueNode = null;
         return this;
     }
 
@@ -246,7 +247,6 @@ class Node implements InfinityArrayCell {
 
     public Node setPrototype(Long prototype) {
         this.prototype = prototype;
-        this.prototypeNode = null;
         return this;
     }
 
@@ -256,7 +256,6 @@ class Node implements InfinityArrayCell {
 
     public Node setBody(Long body) {
         this.body = body;
-        this.bodyNode = null;
         return this;
     }
 
@@ -287,51 +286,4 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
-    private Node getLinkNode(Long nodeId) {
-        return nodeId == null ? null : (Node) getStorage().get(nodeId, new Node());
-    }
-
-    public Node getValueNode() {
-        return valueNode = getLinkNode(value);
-    }
-
-    public Node getSourceNode() {
-        return sourceNode = getLinkNode(source);
-    }
-
-    public Node getTitleNode() {
-        return titleNode = getLinkNode(title);
-    }
-
-    public Node getSetNode() {
-        return setNode = getLinkNode(set);
-    }
-
-    public Node getTrueNode() {
-        return trueNode = getLinkNode(_true);
-    }
-
-    public Node getElseNode() {
-        return elseNode = getLinkNode(_else);
-    }
-
-    public Node getExitNode() {
-        return exitNode = getLinkNode(exit);
-    }
-
-    public Node getWhileNode() {
-        return whileNode = getLinkNode(_while);
-    }
-
-    public Node getIfNode() {
-        return ifNode = getLinkNode(_if);
-    }
-
-    public Node getPrototypeNode() {
-        return prototypeNode = getLinkNode(prototype);
-    }
-
-    public Node getBodyNode() {
-        return bodyNode = getLinkNode(body);
-    }
 }

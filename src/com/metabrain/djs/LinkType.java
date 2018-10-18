@@ -15,15 +15,4 @@ public class LinkType {
     public static final byte LOCAL = 11;
     public static final byte PARAM = 12;
     public static final byte NEXT = 13;
-
-    private final byte value;
-
-    LinkType(byte value) {
-        this.value = value;
-    }
-
-    public byte getValue() {
-        return value;
-    }
-
 }
