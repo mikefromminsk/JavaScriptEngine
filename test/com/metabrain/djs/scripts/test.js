@@ -1,7 +1,4 @@
-
-function first(){
-    return 12;
-}
+var ss = getValue("path")
 
 function second(){
     return 12;

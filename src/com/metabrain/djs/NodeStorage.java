@@ -11,11 +11,11 @@ public class NodeStorage extends InfinityArray {
     private static final String nodeStorageID = "node";
     private static final String dataStorageID = "data";
     private static final String hashStorageID = "hash";
-    private static final String keyValueStorageID = "root";
+    private static final String keyValueStorageID = "kvdb";
 
     private static InfinityFile dataStorage;
     private static NodeStorage instance;
-    private static Tree hashTree;
+    private static Tree dataHashTree;
     private static Tree keyValueStorage;
 
 
@@ -27,7 +27,7 @@ public class NodeStorage extends InfinityArray {
         if (instance == null || dataStorage == null) {
             instance = new NodeStorage(nodeStorageID);
             dataStorage = new InfinityFile(dataStorageID);
-            hashTree = new Tree(hashStorageID);
+            dataHashTree = new Tree(hashStorageID);
             keyValueStorage = new Tree(keyValueStorageID);
         }
         return instance;
@@ -91,13 +91,13 @@ public class NodeStorage extends InfinityArray {
 
     public Long getData(String title) {
         if (title != null)
-            return hashTree.get(title, CRC16.getHash(title));
+            return dataHashTree.get(title, CRC16.getHash(title));
         return null;
     }
 
     public void putData(String title, Long nodeId) {
         if (title != null && nodeId != null)
-            hashTree.put(title, CRC16.getHash(title), nodeId);
+            dataHashTree.put(title, CRC16.getHash(title), nodeId);
     }
 
     public void putData(byte[] title, Long nodeId) {

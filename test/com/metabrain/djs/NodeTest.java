@@ -13,12 +13,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NodeTest {
 
-
-
     @Test
-    void testNodeLocal() {
-        Node node = new Node().makeLocal().commit();
+    void testNode() {
+        Long id1 = new Node().loadPath("test").commit().getId();
+        Long id2 = new Node().loadPath("test").commit().getId();
+        assertEquals(id1, id2);
     }
+
+
+
+
+
+
+
+
+
+
 /*
     @Test
     void testNode() {

@@ -86,7 +86,7 @@ class Node implements InfinityArrayCell {
     }
 
     // TODO change path to byte[][]
-    public Node makePath(String path) {
+    public Node loadPath(String path) {
         // TODO add path parents
         NodeStorage storage = NodeStorage.getInstance();
         // TODO create root node at startup
@@ -95,6 +95,8 @@ class Node implements InfinityArrayCell {
         if (id == null) commit(); // create id if it is null
         if (rootNodeId == null)
             storage.putKey(key, id);
+        else
+            id = rootNodeId;
         return this;
     }
 
