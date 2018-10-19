@@ -56,6 +56,10 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
+    public Node makeLocal(String title) {
+        return makeLocal(title.getBytes());
+    }
+
     public Node makeLocal(byte[] title) {
         if (id == null) return this;
         Long titleId = NodeStorage.getInstance().getData(title);
