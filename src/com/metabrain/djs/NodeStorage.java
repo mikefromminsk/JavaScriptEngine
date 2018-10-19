@@ -4,21 +4,19 @@ import com.metabrain.gdb.*;
 import com.metabrain.gdb.tree.CRC16;
 import com.metabrain.gdb.tree.Tree;
 
-import java.util.Map;
-
 public class NodeStorage extends InfinityArray {
 
-    public static final Long ROOT_NODE_ID = 1L;
+    // TODO add root node when create database
+    public static final Long ROOT_NODE_ID = 0L;
     private static final String nodeStorageID = "node";
     private static final String dataStorageID = "data";
     private static final String hashStorageID = "hash";
-    private static final String dbStorageID = "db";
+    private static final String keyValueStorageID = "root";
 
     private static InfinityFile dataStorage;
     private static NodeStorage instance;
     private static Tree hashTree;
-    private static Tree dbRootStorage;
-    private static Map<Long, Tree> dbDataStoreage;
+    private static Tree keyValueStorage;
 
 
     public NodeStorage(String infinityFileID) {
@@ -30,6 +28,7 @@ public class NodeStorage extends InfinityArray {
             instance = new NodeStorage(nodeStorageID);
             dataStorage = new InfinityFile(dataStorageID);
             hashTree = new Tree(hashStorageID);
+            keyValueStorage = new Tree(keyValueStorageID);
         }
         return instance;
     }
@@ -105,5 +104,14 @@ public class NodeStorage extends InfinityArray {
         // TODO change Tree get to byte[]
         // TODO change CRC16 get to byte[]
         putData(new String(title) , nodeId);
+    }
+
+    public Long getKey(String key) {
+        long value = keyValueStorage.get(key, CRC16.getHash(key));
+        return value == Long.MAX_VALUE ? null : value;
+    }
+
+    public void putKey(String key, Long nodeId) {
+        keyValueStorage.put(key, CRC16.getHash(key), nodeId);
     }
 }

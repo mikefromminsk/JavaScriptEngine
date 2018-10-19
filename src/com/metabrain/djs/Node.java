@@ -85,8 +85,17 @@ class Node implements InfinityArrayCell {
         return null;
     }
 
-    public Long makePath(Long nodeId, String title) {
-        return null;
+    // TODO change path to byte[][]
+    public Node makePath(String path) {
+        // TODO add path parents
+        NodeStorage storage = NodeStorage.getInstance();
+        // TODO create root node at startup
+        String key = (id == null ? NodeStorage.ROOT_NODE_ID : id) + path;
+        Long rootNodeId = storage.getKey(key);
+        if (id == null) commit(); // create id if it is null
+        if (rootNodeId == null)
+            storage.putKey(key, id);
+        return this;
     }
 
 
