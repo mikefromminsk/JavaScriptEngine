@@ -2,10 +2,13 @@ package com.metabrain.djs;
 
 import com.metabrain.gdb.Bytes;
 import com.metabrain.gdb.InfinityArrayCell;
+import com.metabrain.gdb.tree.Tree;
 
 import java.util.ArrayList;
 
 class Node implements InfinityArrayCell {
+
+    // TODO delete string from Node and NodeStorage
 
     private Long id;
     private byte[] data;
@@ -31,8 +34,18 @@ class Node implements InfinityArrayCell {
         setType(NodeType.VAR);
     }
 
+    Node(byte nodeType) {
+        setType(nodeType);
+    }
+
     Node(long node_id) {
         NodeStorage.getInstance().get(node_id, this);
+    }
+
+    Node(byte[] data) {
+        setType(NodeType.DATA);
+        setData(data);
+        commit();
     }
 
     public Node commit() {
@@ -43,89 +56,36 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
-
-
-    public Node makeLocal(String path) {
-        /*    function make_local($node_id, $node_local, $node_type)
-    {
-        if ($node_id != null && $node_local == null) return $node_id;
-        if ($node_id == null && $node_local != null) $node_id = 1;
-        if ($node_type == null) $node_type = "Var";
-        if ($node_id != null && $node_local != null) {
-            $node_local = explode(".", $node_local);
-            $find_node_id = find_local($node_id, $node_local[0]);
-            if ($find_node_id != null) $node_id = $find_node_id;
-            for ($i = ($find_node_id == null ? 0 : 1); $i < count($node_local); $i++) {
-                $node_name = $node_local[$i];
-                $next_node_id = scalar("select t1.node_id from links t1 "
-                    . " right join nodes t2 on t2.node_id = t1.attach_id and BINARY t2.data = '$node_name'"
-                    . " where t1.node_id in (select attach_id from links where node_id = $node_id and link_type = 'local') and t1.link_type = 'title'");
-                if ($next_node_id == null) {
-                    insertList("nodes", array("node_type" => "String", "data" => $node_name));
-                    $title_node_id = scalar("select max(node_id) from nodes");
-                    insertList("nodes", array("node_type" => $node_type));
-                    $variable_node_id = scalar("select max(node_id) from nodes");
-                    set_link($variable_node_id, 'title', $title_node_id, false);
-                    set_link($node_id, 'local', $variable_node_id, true);
-                    $next_node_id = $variable_node_id;
-                }
-                $node_id = $next_node_id;
+    public Node makeLocal(byte[] title) {
+        if (id == null) return this;
+        Long titleId = NodeStorage.getInstance().getData(title);
+        if (titleId != null) {
+            for (Long localNodeId : getLocal()) {
+                Node local = new Node(localNodeId);
+                if (titleId.equals(local.title))
+                    return local;
             }
-        }
-        return $node_id;
-    }*/
-        return null;
-    }
-
-    public Node findLocal(String path) {
-        /*
-        * function find_local($node_id_list, $node_name)
-    {
-        foreach (array_reverse($node_id_list) as $node_id) {
-            $attach_id = scalar("select t1.attach_id from links t1 "
-                . " right join links t2 on t2.node_id = t1.attach_id and t2.link_type = 'title'"
-                . " right join nodes t3 on t3.node_id = t2.attach_id and BINARY t3.data = '$node_name'"
-                . " where t1.node_id = $node_id and t1.link_type in ('local', 'params')"
-                . " order by field (t1.link_type, 'local', 'params') limit 1");
-        if ($attach_id != null)
-            return $attach_id;
-    }
-        return null;
-}
-        * */
-        return null;
-    }
-
-    public Node makePath(String path) {
-        /*
-        * function make_path($node_id, $node_path)
-    {
-        if ($node_path == "..") {
-            if ($node_id == null || $node_id == 1) return null;
-            $up_path_node_id = scalar("select node_id from links where link_type = 'dir' and attach_id = $node_id");
-            return $up_path_node_id != null ? $up_path_node_id : $node_id;
         } else {
-            if ($node_id != null && $node_path == null) return $node_id;
-            if ($node_id == null && $node_path != null) $node_id = 1;
-            if ($node_id != null && $node_path != null) {
-                $node_path = explode("/", $node_path);
-                for ($i = 0; $i < count($node_path); $i++) {
-                    $node_name = $node_path[$i];
-                    $next_node_id = scalar("select attach_id from links t1 "
-                        . " right join nodes t2 on t2.node_id = t1.attach_id and t2.data = '$node_name' "
-                        . " where t1.node_id = $node_id and t1.link_type = 'dir'");
-                    if ($next_node_id == null) {
-                        insertList("nodes", array("node_type" => "Dir", "data" => $node_name));
-                        $next_node_id = scalar("select max(node_id) from nodes");
-                        set_link($node_id, 'dir', $next_node_id, true);
-                    }
-                    $node_id = $next_node_id;
-                }
+            titleId = new Node(title).getId();
+        }
+        Node newLocalNode = new Node().setTitle(titleId).commit();
+        addLocal(newLocalNode.getId()).commit();
+        return newLocalNode;
+    }
+
+    public Node findLocal(byte[] title) {
+        Long titleId = NodeStorage.getInstance().getData(title);
+        if (titleId != null) {
+            for (Long localNodeId : getLocal()) {
+                Node local = new Node(localNodeId);
+                if (titleId.equals(local.title))
+                    return local;
             }
         }
-        return $node_id;
+        return null;
     }
-        * */
+
+    public Long makePath(Long nodeId, String title) {
         return null;
     }
 
@@ -274,6 +234,13 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
+    public Node setTitle(String title) {
+        if (title != null)
+            this.title = new Node(NodeType.DATA).setData(title.getBytes()).commit().getId();
+
+        return this;
+    }
+
     public Long getSet() {
         return set;
     }
@@ -370,6 +337,21 @@ class Node implements InfinityArrayCell {
 
     public Node setNext(ArrayList<Long> next) {
         this.next = next;
+        return this;
+    }
+
+    private Node addLocal(Long nodeId) {
+        local.add(nodeId);
+        return this;
+    }
+
+    private Node addParam(Long nodeId) {
+        param.add(nodeId);
+        return this;
+    }
+
+    private Node addNext(Long nodeId) {
+        next.add(nodeId);
         return this;
     }
 }
