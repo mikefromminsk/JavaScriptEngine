@@ -12,6 +12,7 @@ class Node implements InfinityArrayCell {
 
     private Long id;
     private byte[] data;
+    private DataStream stream;
     private byte type;
 
     private Long value;

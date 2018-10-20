@@ -11,4 +11,8 @@ public class Formatter {
     public static JsonObject toJsonObject(Node node) {
         return null;
     }
+
+    public static Node parse(String size) {
+        return null;
+    }
 }

@@ -1,7 +1,14 @@
 package com.metabrain.djs;
 
-public class Runner {
-    public static void run(Node node) {
+import java.util.ArrayList;
 
+public class Runner implements Runnable {
+
+    public static synchronized void run(Node node) {
+
+    }
+
+    @Override
+    public void run() {
     }
 }
