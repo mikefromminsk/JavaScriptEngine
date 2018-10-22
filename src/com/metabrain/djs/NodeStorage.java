@@ -39,8 +39,8 @@ public class NodeStorage extends InfinityArray {
     private static NodeMetaCell nodeMetaCell = new NodeMetaCell();
 
     @Override
-    public MetaCell getMeta(long index) {
-        return (MetaCell) meta.get(index, nodeMetaCell);
+    public MetaCell initMeta() {
+        return new NodeMetaCell();
     }
 
     public Node get(long index, Node node) {

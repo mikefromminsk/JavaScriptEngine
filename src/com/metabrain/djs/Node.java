@@ -369,13 +369,13 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
-    private Node addLocal(Long nodeId) {
+    public Node addLocal(Long nodeId) {
         local.add(nodeId);
         return this;
     }
 
-    private Node addParam(Long nodeId) {
-        param.add(nodeId);
+    public Node addParam(Node nodeId) {
+        param.add(nodeId.getId());
         return this;
     }
 
