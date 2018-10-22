@@ -38,7 +38,7 @@ public class NodeTest {
                 try {
                     String source = FileUtils.readFileToString(script, StandardCharsets.UTF_8);
                     Node node = new Node().commit();
-                    JSParser.parse(source, node);
+                    JsParser.parse(source, node);
                     Runner.run(node);
                     for (Long node_id : node.getLocal()){
 

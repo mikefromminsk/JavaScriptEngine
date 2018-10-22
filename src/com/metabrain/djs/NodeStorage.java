@@ -1,7 +1,7 @@
 package com.metabrain.djs;
 
 import com.metabrain.gdb.*;
-import com.metabrain.gdb.tree.CRC16;
+import com.metabrain.gdb.tree.Crc16;
 import com.metabrain.gdb.tree.Tree;
 
 public class NodeStorage extends InfinityArray {
@@ -12,11 +12,13 @@ public class NodeStorage extends InfinityArray {
     private static final String dataStorageID = "data";
     private static final String hashStorageID = "hash";
     private static final String keyValueStorageID = "kvdb";
+    private static final String accountStorageID = "account";
 
     private static InfinityFile dataStorage;
     private static NodeStorage instance;
     private static Tree dataHashTree;
     private static Tree keyValueStorage;
+    private static Tree accountStorage;
 
 
     public NodeStorage(String infinityFileID) {
@@ -29,6 +31,7 @@ public class NodeStorage extends InfinityArray {
             dataStorage = new InfinityFile(dataStorageID);
             dataHashTree = new Tree(hashStorageID);
             keyValueStorage = new Tree(keyValueStorageID);
+            accountStorage = new Tree(accountStorageID);
         }
         return instance;
     }
@@ -61,57 +64,71 @@ public class NodeStorage extends InfinityArray {
     }
 
     public void add(Node node) {
-        if (node.getId() == NodeType.DATA) {
-
-            Long lastDataId = getData(node.getData());
-            if (lastDataId != null){
-                node.setId(lastDataId);
-            }else{
-                long position = dataStorage.add(node.getData());
-                nodeMetaCell.type = NodeType.DATA;
-                nodeMetaCell.start = position;
-                nodeMetaCell.length = node.getData().length;
-                nodeMetaCell.accessKey = 0;
-                // TODO add generate access key
-                long id = meta.add(nodeMetaCell);
-                node.setId(id);
-                putData(node.getData(), id);
-            }
-        } else {
-            long id = super.add(node);
-            node.setId(id);
-        }
+        long id = super.add(node);
+        node.setId(id);
     }
 
     public Long getData(byte[] title) {
         // TODO change Tree get to byte[]
-        // TODO change CRC16 get to byte[]
+        // TODO change Crc16 get to byte[]
         return getData(new String(title));
     }
 
     public Long getData(String title) {
         if (title != null)
-            return dataHashTree.get(title, CRC16.getHash(title));
+            return dataHashTree.get(title, Crc16.getHash(title));
         return null;
     }
 
     public void putData(String title, Long nodeId) {
         if (title != null && nodeId != null)
-            dataHashTree.put(title, CRC16.getHash(title), nodeId);
+            dataHashTree.put(title, Crc16.getHash(title), nodeId);
     }
 
     public void putData(byte[] title, Long nodeId) {
         // TODO change Tree get to byte[]
-        // TODO change CRC16 get to byte[]
-        putData(new String(title) , nodeId);
+        // TODO change Crc16 get to byte[]
+        putData(new String(title), nodeId);
     }
 
     public Long getKey(String key) {
-        long value = keyValueStorage.get(key, CRC16.getHash(key));
+        long value = keyValueStorage.get(key, Crc16.getHash(key));
         return value == Long.MAX_VALUE ? null : value;
     }
 
     public void putKey(String key, Long nodeId) {
-        keyValueStorage.put(key, CRC16.getHash(key), nodeId);
+        keyValueStorage.put(key, Crc16.getHash(key), nodeId);
+    }
+
+    public long addMeta(NodeMetaCell nodeMetaCell) {
+        return meta.add(nodeMetaCell);
+    }
+
+    boolean login(String login, String password) {
+        byte[] loginHash = Crc16.getHash(login);
+        long readiedPasswordHash = accountStorage.get(login, loginHash);
+        return readiedPasswordHash == Bytes.toLong(Crc16.getHash(password));
+    }
+
+    boolean registration(String login, String password) {
+        byte[] loginHash = Crc16.getHash(login);
+        boolean loginExist = accountStorage.get(login, loginHash) != Long.MAX_VALUE;
+        if (!loginExist) {
+            byte[] passwordHash = Crc16.getHash(password);
+            accountStorage.put(login, loginHash, Bytes.toLong(passwordHash));
+            return true;
+        }
+        return false;
+    }
+
+    boolean changePassword(String login, String password, String newPassword) {
+        byte[] loginHash = Crc16.getHash(login);
+        long readiedPasswordHash = accountStorage.get(login, loginHash);
+        if (readiedPasswordHash == Bytes.toLong(Crc16.getHash(password))) {
+            byte[] newPasswordHash = Crc16.getHash(newPassword);
+            accountStorage.put(login, newPasswordHash, Bytes.toLong(newPasswordHash));
+            return true;
+        }
+        return false;
     }
 }

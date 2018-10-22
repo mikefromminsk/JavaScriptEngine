@@ -11,8 +11,7 @@ class Node implements InfinityArrayCell {
     // TODO delete string from Node and NodeStorage
 
     private Long id;
-    private byte[] data;
-    private DataStream stream;
+    private DataStream data;
     private byte type;
 
     private Long value;
@@ -213,15 +212,29 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
-    public byte[] getData() {
+    public DataStream getData() {
         return data;
     }
 
     public Node setData(byte[] data) {
-        this.data = data;
+        NodeStorage storage = NodeStorage.getInstance();
+        Long lastDataId = storage.getData(data);
+        if (lastDataId != null){
+            setId(lastDataId);
+        }else{
+            long position = storage.add(data);
+            NodeMetaCell nodeMetaCell = new NodeMetaCell();
+            nodeMetaCell.type = NodeType.DATA;
+            nodeMetaCell.start = position;
+            nodeMetaCell.length = data.length;
+            nodeMetaCell.accessKey = 0;
+            // TODO add generate access key
+            long id = storage.addMeta(nodeMetaCell);
+            setId(id);
+            storage.putData(data, id);
+        }
         return this;
     }
-
 
     public Long getValue() {
         return value;

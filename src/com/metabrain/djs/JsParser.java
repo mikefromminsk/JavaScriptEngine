@@ -7,7 +7,7 @@ import org.mozilla.javascript.ast.AstRoot;
 import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.NodeVisitor;
 
-public class JSParser {
+public class JsParser {
 
     static class Printer implements NodeVisitor {
         @Override
