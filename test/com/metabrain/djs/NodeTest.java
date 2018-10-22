@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -15,16 +16,20 @@ public class NodeTest {
 
     @Test
     void testPath() {
-        Long id1 = new Node().loadPath("test").commit().getId();
-        Long id2 = new Node().loadPath("test").commit().getId();
+        Long id1 = new Node().loadPath("test1").commit().getId();
+        Long id2 = new Node().loadPath("test1").commit().getId();
+        Long id3 = new Node().loadPath("test2").commit().getId();
         assertEquals(id1, id2);
+        assertNotEquals(id1, id3);
     }
 
     @Test
     void testLocal() {
         Long id1 = new Node().loadPath("test").makeLocal("local1").commit().getId();
         Long id2 = new Node().loadPath("test").makeLocal("local1").commit().getId();
+        Long id3 = new Node().loadPath("test").makeLocal("local2").commit().getId();
         assertEquals(id1, id2);
+        assertNotEquals(id1, id3);
     }
 
 
@@ -39,7 +44,7 @@ public class NodeTest {
                     String source = FileUtils.readFileToString(script, StandardCharsets.UTF_8);
                     Node node = new Node().commit();
                     JsParser.parse(source, node);
-                    Runner.run(node);
+                    RunThread.run(node);
                     for (Long node_id : node.getLocal()){
 
                     }
