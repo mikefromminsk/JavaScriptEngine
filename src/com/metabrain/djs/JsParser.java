@@ -2,18 +2,71 @@ package com.metabrain.djs;
 
 import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.Parser;
+import org.mozilla.javascript.Token;
 import org.mozilla.javascript.ast.*;
 
 import java.util.Iterator;
 
-import static com.sun.org.apache.xml.internal.security.keys.keyresolver.KeyResolver.iterator;
-
 public class JsParser {
 
-    Long jsLine(Node module, org.mozilla.javascript.Node statement) {
+    Node jsLine(Node module, org.mozilla.javascript.Node statement) {
 
-        if (statement instanceof ReturnStatement){
+        if (statement instanceof VariableDeclaration) {
+            VariableDeclaration variableDeclaration = (VariableDeclaration) statement;
+            for (VariableInitializer variableInitializer : variableDeclaration.getVariables()) {
+                Node variable = jsLine(module, variableInitializer.getTarget());
+                if (variableInitializer.getInitializer() != null) {
+                    Node setLink = jsLine(module, variableInitializer.getInitializer());
+                    module.addNext(new Node()
+                            .setSource(variable.getId())
+                            .setSet(setLink.getId())
+                            .commit().getId()
+                    ).commit();
+                }
+            }
 
+        }
+
+        if (statement instanceof NumberLiteral) {
+            NumberLiteral numberLiteral = (NumberLiteral) statement;
+            return new Node(NodeType.NUMBER).setData(numberLiteral.getValue().getBytes()).commit();
+        }
+
+        if (statement instanceof StringLiteral) {
+            StringLiteral numberLiteral = (StringLiteral) statement;
+            return new Node(NodeType.STRING).setData(numberLiteral.getValue().getBytes()).commit();
+        }
+
+        if (statement instanceof KeywordLiteral) {
+            KeywordLiteral numberLiteral = (KeywordLiteral) statement;
+            String data = "";
+            switch (numberLiteral.getType()) {
+                case Token.TRUE:
+                    data = "1";
+                    break;
+                case Token.FALSE:
+                    data = "0";
+                    break;
+            }
+            return new Node(NodeType.BOOL).setData(data.getBytes()).commit();
+        }
+
+        if (statement instanceof ReturnStatement) {
+            ReturnStatement returnStatement = (ReturnStatement) statement;
+            return new Node()
+                    .setSource(module.getId())
+                    .setSet(jsLine(module, returnStatement.getReturnValue()).getId())
+                    .setExit(module.getId())
+                    .commit();
+        }
+
+        if (statement instanceof IfStatement) {
+            IfStatement ifStatement = (IfStatement) statement;
+            return new Node()
+                    .setIf(jsLine(module, ifStatement.getCondition()).getId())
+                    .setTrue(jsLine(module, ifStatement.getThenPart()).getId())
+                    .setElse(jsLine(module, ifStatement.getElsePart()).getId())
+                    .commit();
         }
 
         if (statement instanceof FunctionNode) {
@@ -26,34 +79,22 @@ public class JsParser {
             while (it.hasNext())
                 jsLine(func, it.next());
         }
-
-        return null;
-        /*if ($statement instanceof FunctionDeclaration) {
-            $params = array();
-            foreach ($statement->getParams() as $param)
-                $params[] = node(array("title" => "!" . $param->getName()));
-            $function_node_id = node(array(
-                    "node_id" => $module_node_id,
-                    "node_local" => $statement->getId()->getName(),
-                    "params" => implode(",", $params),
-                    "local" => "!", "include" => "!", "next" => "!", "value" => "!", "set" => "!", "if" => "!",
-        ));
-            foreach ($statement->getBody()->getBody() as $block_statement)
-            node(array("node_id" => $function_node_id, "next[]" => js_line($function_node_id, $block_statement)));
-            return null;
+        if (statement instanceof ExpressionStatement) {
+            ExpressionStatement expressionStatement = (ExpressionStatement) statement;
+            jsLine(module, expressionStatement.getExpression());
         }
-        if ($statement instanceof FunctionExpression) {
-            $params = array();
-            foreach ($statement->getParams() as $param)
-                $params[] = node(array("title" => "!" . $param->getName()));
-            $function_node_id = node(array("node_type" => "Function", "params" => implode(",", $params),));
-            node(array("node_id" => $module_node_id, "local[]" => $function_node_id));
-            foreach ($statement->getBody()->getBody() as $block_statement)
-            node(array("node_id" => $function_node_id, "next[]" => js_line($function_node_id, $block_statement)));
-            query("delete from links where node_id = $module_node_id and link_type = 'local' and attach_id = $function_node_id");
-            return $function_node_id;
-        }*/
-
+        if (statement instanceof Name) {
+            Name name = (Name) statement;
+            return module.makeLocal(name.getIdentifier().getBytes());
+        }
+        if (statement instanceof FunctionCall) {
+            FunctionCall functionCall = (FunctionCall) statement;
+            Node func = jsLine(module, functionCall.getTarget());
+            for (AstNode param : functionCall.getArguments())
+                func.addParam(jsLine(module, param));
+            func.commit();
+        }
+        return null;
     }
 
     public void parse(String sourceString) {

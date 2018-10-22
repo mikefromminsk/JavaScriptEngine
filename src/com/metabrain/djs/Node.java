@@ -2,7 +2,6 @@ package com.metabrain.djs;
 
 import com.metabrain.gdb.Bytes;
 import com.metabrain.gdb.InfinityArrayCell;
-import com.metabrain.gdb.tree.Tree;
 
 import java.util.ArrayList;
 
@@ -43,7 +42,7 @@ class Node implements InfinityArrayCell {
     }
 
     Node(byte[] data) {
-        setType(NodeType.DATA);
+        setType(NodeType.STRING);
         setData(data);
         commit();
     }
@@ -61,7 +60,7 @@ class Node implements InfinityArrayCell {
     }
 
     public Node makeLocal(byte[] title) {
-        if (id == null) return this;
+        if (id == null) commit();
         Long titleId = NodeStorage.getInstance().getData(title);
         if (titleId != null) {
             for (Long localNodeId : getLocal()) {
@@ -224,7 +223,7 @@ class Node implements InfinityArrayCell {
         }else{
             long position = storage.add(data);
             NodeMetaCell nodeMetaCell = new NodeMetaCell();
-            nodeMetaCell.type = NodeType.DATA;
+            nodeMetaCell.type = getType();
             nodeMetaCell.start = position;
             nodeMetaCell.length = data.length;
             nodeMetaCell.accessKey = 0;
@@ -265,7 +264,7 @@ class Node implements InfinityArrayCell {
 
     public Node setTitle(String title) {
         if (title != null)
-            this.title = new Node(NodeType.DATA).setData(title.getBytes()).commit().getId();
+            this.title = new Node(NodeType.STRING).setData(title.getBytes()).commit().getId();
 
         return this;
     }
@@ -379,7 +378,7 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
-    private Node addNext(Long nodeId) {
+    protected Node addNext(Long nodeId) {
         next.add(nodeId);
         return this;
     }

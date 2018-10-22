@@ -46,7 +46,7 @@ public class NodeStorage extends InfinityArray {
     public Node get(long index, Node node) {
         NodeMetaCell metaCell = (NodeMetaCell) getMeta(index);
         node.setType((byte) metaCell.type);
-        if (metaCell.type == NodeType.DATA) {
+        if (metaCell.type == NodeType.STRING) {
             byte[] readiedData = dataStorage.read(metaCell.start, metaCell.length);
             node.setData(readiedData);
             // todo add decode
@@ -59,7 +59,9 @@ public class NodeStorage extends InfinityArray {
     }
 
     public void set(long index, Node node) {
-        if (node.getType() != NodeType.DATA)
+        if (node.getType() != NodeType.STRING &&
+                node.getType() != NodeType.NUMBER &&
+                node.getType() != NodeType.BOOL)
             super.set(index, node);
     }
 
