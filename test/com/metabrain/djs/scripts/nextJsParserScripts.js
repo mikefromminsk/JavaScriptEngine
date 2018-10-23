@@ -13,10 +13,10 @@ class Animal{
 var var2 = new Animal();
 var var3 = var2.run();
 
-function ss(par){
 
-    return par;
-}
+
+
+
 
 function func3(par){
     var ss = 0;
