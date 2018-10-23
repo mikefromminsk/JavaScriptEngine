@@ -1,188 +1,32 @@
 package com.metabrain.djs;
 
-import org.mozilla.javascript.CompilerEnvirons;
-import org.mozilla.javascript.Parser;
-import org.mozilla.javascript.Token;
-import org.mozilla.javascript.ast.*;
+import jdk.nashorn.internal.ir.*;
+import jdk.nashorn.internal.parser.Parser;
+import jdk.nashorn.internal.parser.TokenType;
+import jdk.nashorn.internal.runtime.Context;
+import jdk.nashorn.internal.runtime.ErrorManager;
+import jdk.nashorn.internal.runtime.Source;
+import jdk.nashorn.internal.runtime.options.Options;
 
-import java.util.Iterator;
+import static jdk.nashorn.internal.parser.TokenType.*;
+import static jdk.nashorn.internal.parser.TokenType.EQ;
 
 public class JsParser {
 
-    Node jsLine(Node module, org.mozilla.javascript.Node statement) {
+    Node jsLine(Node module, jdk.nashorn.internal.ir.Node statement) {
 
-        if (statement instanceof VariableDeclaration) {
-            VariableDeclaration variableDeclaration = (VariableDeclaration) statement;
-            for (VariableInitializer variableInitializer : variableDeclaration.getVariables()) {
-                Node variable = jsLine(module, variableInitializer.getTarget());
-                if (variableInitializer.getInitializer() != null) {
-                    Node setLink = jsLine(module, variableInitializer.getInitializer());
-                    module.addNext(new Node()
-                            .setSource(variable.getId())
-                            .setSet(setLink.getId())
-                            .commit().getId()
-                    ).commit();
-                }
+        if (statement instanceof VarNode) {
+            VarNode varNode = (VarNode) statement;
+            Node variable = jsLine(module, varNode.getName());
+            if (varNode.getInit() != null) {
+                Node setLink = jsLine(module, varNode.getInit());
+                module.addNext(new Node()
+                        .setSource(variable.getId())
+                        .setSet(setLink.getId())
+                        .commit().getId()
+                ).commit();
             }
-        }
-
-        if (statement instanceof ObjectLiteral) {
-            ObjectLiteral objectLiteral = (ObjectLiteral) statement;
-            Node obj = new Node().commit();
-            module.addLocal(obj.getId()).commit(); // TODO commit ?
-            for (ObjectProperty item : objectLiteral.getElements())
-                obj.addProp(jsLine(obj, item).getId()); // TODO add 3th param to jsLine $add_to_local_path
-            module.removeLocal(obj.getId()).commit(); // TODO commit ?
-            return obj.commit();
-        }
-
-        if (statement instanceof ObjectProperty) {
-            ObjectProperty objectProperty = (ObjectProperty) statement;
-
-            String key = "";
-            if (objectProperty.getLeft() instanceof StringLiteral) {
-                StringLiteral stringLiteral = (StringLiteral) objectProperty.getLeft();
-                key = stringLiteral.getValue();
-            } else if (objectProperty.getLeft() instanceof NumberLiteral) {
-                NumberLiteral numberLiteral = (NumberLiteral) objectProperty.getLeft();
-                key = numberLiteral.getValue();
-            }
-            if (objectProperty.getRight() instanceof FunctionCall) {
-                return module
-                        .addLocal(new Node()
-                                .setTitle(key)
-                                .setBody(jsLine(module, objectProperty.getRight()).getId())
-                                .commit().getId()
-                        ).commit();
-            } else {
-                return module
-                        .addLocal(jsLine(module, objectProperty.getRight()).setTitle(key).commit().getId())
-                        .commit();
-            }
-        }
-
-        if (statement instanceof ArrayLiteral) {
-            ArrayLiteral arrayLiteral = (ArrayLiteral) statement;
-            Node arr = new Node(NodeType.ARRAY);
-            for (AstNode item : arrayLiteral.getElements())
-                arr.addCell(jsLine(module, item).getId());
-            return arr.commit();
-        }
-
-        if (statement instanceof NumberLiteral) {
-            NumberLiteral numberLiteral = (NumberLiteral) statement;
-            return new Node()
-                    .setValue(new Node(NodeType.NUMBER).setData(numberLiteral.getValue().getBytes()).commit().getId())
-                    .commit();
-        }
-
-        if (statement instanceof StringLiteral) {
-            StringLiteral numberLiteral = (StringLiteral) statement;
-            return new Node()
-                    .setValue(new Node(NodeType.STRING).setData(numberLiteral.getValue().getBytes()).commit().getId())
-                    .commit();
-        }
-
-        if (statement instanceof KeywordLiteral) {
-            KeywordLiteral numberLiteral = (KeywordLiteral) statement;
-            String data = "";
-            switch (numberLiteral.getType()) {
-                case Token.TRUE:
-                    data = "1";
-                    break;
-                case Token.FALSE:
-                    data = "0";
-                    break;
-            }
-            return new Node()
-                    .setValue(new Node(NodeType.BOOL).setData(data.getBytes()).commit().getId())
-                    .commit();
-        }
-
-        if (statement instanceof ReturnStatement) {
-            ReturnStatement returnStatement = (ReturnStatement) statement;
-            return new Node()
-                    .setSource(module.getId())
-                    .setSet(jsLine(module, returnStatement.getReturnValue()).getId())
-                    .setExit(module.getId())
-                    .commit();
-        }
-
-        if (statement instanceof IfStatement) {
-            IfStatement ifStatement = (IfStatement) statement;
-            return new Node()
-                    .setIf(jsLine(module, ifStatement.getCondition()).getId())
-                    .setTrue(jsLine(module, ifStatement.getThenPart()).getId())
-                    .setElse(jsLine(module, ifStatement.getElsePart()).getId())
-                    .commit();
-        }
-
-        if (statement instanceof Assignment) {
-            Assignment assignment = (Assignment) statement;
-            Node left = jsLine(module, assignment.getLeft());
-            Node right = jsLine(module, assignment.getRight());
-            if (assignment.getOperator() == Token.IFEQ) {
-                return new Node()
-                        .setSource(left.getId())
-                        .setSet(right.getId())
-                        .commit();
-            } else {
-                int functionId = Functions.EQ;
-                switch (assignment.getOperator()) {
-                    case Token.ASSIGN_ADD:
-                        functionId = Functions.ADD;
-                        break;
-                }
-                Node functionCalc = new Node(NodeType.FUNCTION)
-                        .setFunctionId(functionId)
-                        .addParam(left.getId())
-                        .addParam(right.getId())
-                        .commit();
-                return new Node()
-                        .setSource(left.getId())
-                        .setSet(functionCalc.getId())
-                        .commit();
-            }
-        }
-
-        if (statement instanceof InfixExpression) {
-            InfixExpression infixExpression = (InfixExpression) statement;
-            int functionId = Functions.EQ; // error
-            // TODO add all functions
-            switch (infixExpression.getOperator()) {
-                case Token.EQ:
-                    functionId = Functions.EQ;
-                    break;
-                case Token.ADD:
-                    functionId = Functions.ADD;
-                    break;
-                case Token.SUB:
-                    functionId = Functions.SUB;
-                    break;
-                case Token.MUL:
-                    functionId = Functions.MUL;
-                    break;
-                case Token.DIV:
-                    functionId = Functions.DIV;
-                    break;
-                case Token.MOD:
-                    functionId = Functions.MOD;
-                    break;
-                case Token.AND:
-                    functionId = Functions.AND;
-                    break;
-                case Token.OR:
-                    functionId = Functions.OR;
-                    break;
-                case Token.LE:
-                    functionId = Functions.LE;
-                    break;
-            }
-            return new Node(NodeType.FUNCTION)
-                    .setFunctionId(functionId)
-                    .addParam(jsLine(module, infixExpression.getLeft()).getId())
-                    .addParam(jsLine(module, infixExpression.getRight()).getId())
-                    .commit();
+            return variable;
         }
 
         if (statement instanceof ExpressionStatement) {
@@ -190,40 +34,151 @@ public class JsParser {
             return jsLine(module, expressionStatement.getExpression());
         }
 
-        if (statement instanceof FunctionNode) {
-            FunctionNode funcAst = (FunctionNode) statement;
-            Node func = module.makeLocal(funcAst.getName());
-            for (AstNode param : funcAst.getParams())
-                func.addParam(new Node().setTitle(param.shortName()).commit().getId());
-            func.commit();
-            Iterator<org.mozilla.javascript.Node> it = funcAst.getBody().iterator();
-            while (it.hasNext())
-                jsLine(func, it.next());
+        if (statement instanceof BinaryNode) {
+            BinaryNode binaryNode = (BinaryNode) statement;
+            if (binaryNode.isAssignment()) {
+                Node left = jsLine(module, binaryNode.lhs());
+                Node right = jsLine(module, binaryNode.rhs());
+                if (binaryNode.tokenType() == TokenType.ASSIGN) {
+                    return new Node()
+                            .setSource(left.getId())
+                            .setSet(right.getId())
+                            .commit();
+                } else {
+                    Node functionCalc = new Node(NodeType.FUNCTION)
+                            .setFunctionId(Functions.fromTokenType(binaryNode.tokenType()))
+                            .addParam(left.getId())
+                            .addParam(right.getId())
+                            .commit();
+                    return new Node()
+                            .setSource(left.getId())
+                            .setSet(functionCalc.getId())
+                            .commit();
+                }
+            }
+            if (binaryNode.isComparison()) {
+                return new Node(NodeType.FUNCTION)
+                        .setFunctionId(Functions.fromTokenType(binaryNode.tokenType()))
+                        .addParam(jsLine(module, binaryNode.lhs()).getId())
+                        .addParam(jsLine(module, binaryNode.rhs()).getId())
+                        .commit();
+            }
         }
 
-        if (statement instanceof Name) {
-            Name name = (Name) statement;
-            return module.makeLocal(name.getIdentifier().getBytes());
+
+        if (statement instanceof Block) {
+            Block block = (Block) statement;
+            for (jdk.nashorn.internal.ir.Node line : block.getStatements())
+                module.addNext(jsLine(module, line).getId());
+            return module.commit();
         }
-        if (statement instanceof FunctionCall) {
-            FunctionCall functionCall = (FunctionCall) statement;
-            Node func = jsLine(module, functionCall.getTarget());
-            for (AstNode param : functionCall.getArguments())
-                func.addParam(jsLine(module, param).getId());
+
+        if (statement instanceof IfNode) {
+            IfNode ifNode = (IfNode) statement;
+            Node ifs = new Node()
+                    .setIf(jsLine(module, ifNode.getTest()).getId())
+                    .setTrue(jsLine(module, ifNode.getPass()).getId());
+            if (ifNode.getFail() != null)
+                ifs.setElse(jsLine(module, ifNode.getFail()).getId());
+            return ifs.commit();
+        }
+
+        if (statement instanceof FunctionNode) {
+            FunctionNode functionNode = (FunctionNode) statement;
+            Node func = module.makeLocal(functionNode.getName());
+            for (IdentNode param : functionNode.getParameters())
+                func.addParam(new Node().setTitle(param.getName()).commit().getId());
             func.commit();
+            return jsLine(func, functionNode.getBody());
+        }
+
+        if (statement instanceof ReturnNode) {
+            ReturnNode returnNode = (ReturnNode) statement;
+            return new Node()
+                    .setSource(module.getId())
+                    .setSet(jsLine(module, returnNode.getExpression()).getId())
+                    .setExit(module.getId())
+                    .commit();
+        }
+
+        if (statement instanceof IdentNode) {
+            IdentNode identNode = (IdentNode) statement;
+            return module.makeLocal(identNode.getName().getBytes());
+        }
+
+        if (statement instanceof ObjectNode) {
+            ObjectNode objectNode = (ObjectNode) statement;
+            Node obj = new Node().commit();
+            module.addLocal(obj.getId()).commit(); // TODO commit ?
+            for (PropertyNode item : objectNode.getElements())
+                obj.addProp(jsLine(obj, item).getId()); // TODO add 3th param to jsLine $add_to_local_path
+            module.removeLocal(obj.getId()).commit(); // TODO commit ?
+            return obj.commit();
+        }
+
+        if (statement instanceof PropertyNode) {
+            PropertyNode propertyNode = (PropertyNode) statement;
+
+            String key = "";
+            if (propertyNode.getKey() instanceof LiteralNode) {
+                LiteralNode literalNode = (LiteralNode) propertyNode.getKey();
+                key = literalNode.getString();
+            }
+            if (propertyNode.getValue() instanceof FunctionCall) {
+                return module
+                        .addLocal(new Node()
+                                .setTitle(key)
+                                .setBody(jsLine(module, propertyNode.getValue()).getId())
+                                .commit().getId()
+                        ).commit();
+            } else {
+                return module
+                        .addLocal(jsLine(module, propertyNode.getValue()).setTitle(key).commit().getId())
+                        .commit();
+            }
+        }
+
+        if (statement instanceof LiteralNode) {
+            LiteralNode literalNode = (LiteralNode) statement;
+
+            if (literalNode instanceof LiteralNode.ArrayLiteralNode) {
+                LiteralNode.ArrayLiteralNode arrayLiteralNode = (LiteralNode.ArrayLiteralNode) literalNode;
+                Node arr = new Node(NodeType.ARRAY);
+                for (jdk.nashorn.internal.ir.Node item : arrayLiteralNode.getElementExpressions())
+                    arr.addCell(jsLine(module, item).getId());
+                return arr;
+            }
+            byte nodeType = NodeType.STRING;
+            if (literalNode.isString())
+                nodeType = NodeType.STRING;
+            if (literalNode.isNumeric())
+                nodeType = NodeType.NUMBER;
+            if (literalNode.isAlwaysTrue())
+                nodeType = NodeType.BOOL;
+            if (literalNode.isAlwaysFalse())
+                nodeType = NodeType.BOOL;
+            return new Node()
+                    .setValue(new Node(nodeType).setData(literalNode.getString().getBytes()).commit().getId())
+                    .commit();
+
         }
         return null;
     }
 
     public void parse(String sourceString) {
-        CompilerEnvirons env = new CompilerEnvirons();
-        env.setRecordingLocalJsDocComments(true);
-        env.setAllowSharpComments(true);
-        env.setRecordingComments(true);
-        AstRoot statement = new Parser(env).parse(sourceString, sourceString, 1);
-        Iterator<org.mozilla.javascript.Node> jsNode = statement.iterator();
-        while (jsNode.hasNext())
-            jsLine(new Node(), jsNode.next());
+        Options options = new Options("nashorn");
+        options.set("anon.functions", true);
+        options.set("parse.only", true);
+        options.set("scripting", true);
+
+        ErrorManager errors = new ErrorManager();
+        Context context = new Context(options, errors, Thread.currentThread().getContextClassLoader());
+        Source source = Source.sourceFor("test", sourceString);
+        Parser parser = new Parser(context.getEnv(), source, errors);
+        FunctionNode functionNode = parser.parse();
+        Block block = functionNode.getBody();
+        for (Statement statement : block.getStatements())
+            jsLine(new Node(), statement);
     }
 
 

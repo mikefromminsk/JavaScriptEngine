@@ -1,31 +1,31 @@
-function User(name) {
-  this.name = name;
-}
-
-User.prototype.sayHi = function() {
-  alert(this.name);
-};
-
-
-
-var variable11 = {
-    "tes": 1,
-    "te2": 1
-};
-var variable11 = [1, 2];
-var variable3 = true;
-var variable4 = false;
-var variable5 = "qwd";
-var variable1;
-var variable2 = 12;
-
-function second(par){
-    var ss;
-    if (1 == 1)
+function func3(par){
+    var ss = 0;
+    if (par == 1)
         ss = 1;
     else
-        ss = 0;
+        ss = 1;
+    return ss;
+}
+
+function func2(par){
+    var ss = 0;
+    if (par == 1)
+        ss = 1;
+    return ss;
+}
+
+func1();
+
+function func1(par){
     return par;
 }
 
-second(123, variable);
+var variable6 = {
+    "tes": 1,
+    "te2": 1
+};
+var variable5 = [1, 2];
+var variable4 = true;
+var variable3 = false;
+var variable2 = "qwd";
+var variable1 = 12;
