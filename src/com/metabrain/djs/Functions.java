@@ -18,6 +18,7 @@ public class Functions {
     public static final int LT = 12 ;
     public static final int GE = 13;
     public static final int GT = 14;
+    public static final int UNARY_MINUS = 15;
 
     static int fromTokenType(TokenType tokenType){
         // TODO add all tokens

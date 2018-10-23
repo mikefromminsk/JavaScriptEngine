@@ -14,14 +14,21 @@ var var2 = new Animal();
 var var3 = var2.run();
 
 function ss(par){
-    for (var i=0;i<2;i++)
-        par += 1;
+
     return par;
 }
 
-function ss(par){
-    return par--;
+function func3(par){
+    var ss = 0;
+    if (par == 1)
+        ss = 1;
+    else
+        ss = 1;
+    return ss;
 }
 
+func1();
 
-var a = -1;
+function func1(par){
+    return par;
+}

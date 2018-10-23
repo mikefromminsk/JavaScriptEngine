@@ -1,5 +1,6 @@
 package com.metabrain.djs;
 
+import com.oracle.deploy.update.UpdateCheck;
 import jdk.nashorn.internal.ir.*;
 import jdk.nashorn.internal.parser.Parser;
 import jdk.nashorn.internal.parser.TokenType;
@@ -27,6 +28,34 @@ public class JsParser {
                 ).commit();
             }
             return variable;
+        }
+
+        if (statement instanceof ForNode){
+            ForNode forNode = (ForNode) statement;
+            // TODO problem with parsing for init
+            Node forInitNode = new Node().commit();
+            module.addLocal(forInitNode.getId()).commit();
+            forInitNode.addNext(jsLine(forInitNode, forNode.getInit()).getId());
+            Node forBodyNode = jsLine(forInitNode, forNode.getBody());
+            Node forStartNode = new Node()
+                    .setWhile(forBodyNode.getId())
+                    .setIf(jsLine(forInitNode, forNode.getTest()).getId())
+                    .commit();
+            forBodyNode.addNext(jsLine(forInitNode, forNode.getModify()).getId()).commit();
+            forInitNode.addNext(forStartNode.getId());
+            module.removeLocal(forInitNode.getId());
+            forInitNode.removeLocal(forStartNode.getId()); // TODO remove this line
+            return forInitNode.commit();
+        }
+
+        if (statement instanceof UnaryNode) {
+            UnaryNode unaryNode = (UnaryNode) statement;
+            // TODO add all unary ++a --a a++ a--
+            if (unaryNode.tokenType() == TokenType.SUB)
+                return new Node(NodeType.FUNCTION)
+                        .setFunctionId(Functions.UNARY_MINUS)
+                        .addParam(jsLine(module, unaryNode.getExpression()).getId())
+                        .commit();
         }
 
         if (statement instanceof ExpressionStatement) {
@@ -156,7 +185,9 @@ public class JsParser {
             if (literalNode.isAlwaysFalse())
                 nodeType = NodeType.BOOL;
             return new Node()
-                    .setValue(new Node(nodeType).setData(literalNode.getString().getBytes()).commit().getId())
+                    .setValue(new Node(nodeType)
+                            .setData(literalNode.getString().getBytes())
+                            .commit().getId())
                     .commit();
 
         }
