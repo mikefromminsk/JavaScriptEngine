@@ -12,6 +12,7 @@ class Node implements InfinityArrayCell {
     private Long id;
     private DataStream data;
     private byte type;
+    private Integer functionId;
 
     private Long value;
     private Long source;
@@ -28,6 +29,8 @@ class Node implements InfinityArrayCell {
     private ArrayList<Long> local = new ArrayList<>();
     private ArrayList<Long> param = new ArrayList<>();
     private ArrayList<Long> next = new ArrayList<>();
+    private ArrayList<Long> cell = new ArrayList<>();
+    private ArrayList<Long> properties = new ArrayList<>();
 
     Node() {
         setType(NodeType.VAR);
@@ -341,45 +344,54 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
-    public ArrayList<Long> getLocal() {
-        return local;
+    public int getFunctionId() {
+        return functionId;
     }
 
-    public Node setLocal(ArrayList<Long> local) {
-        this.local = local;
+    public Node setFunctionId(int functionId) {
+        this.functionId = functionId;
         return this;
+    }
+
+    public ArrayList<Long> getLocal() {
+        return local;
     }
 
     public ArrayList<Long> getParam() {
         return param;
     }
 
-    public Node setParam(ArrayList<Long> param) {
-        this.param = param;
-        return this;
-    }
-
     public ArrayList<Long> getNext() {
         return next;
     }
 
-    public Node setNext(ArrayList<Long> next) {
-        this.next = next;
+    public Node addLocal(Long id) {
+        local.add(id);
         return this;
     }
 
-    public Node addLocal(Long nodeId) {
-        local.add(nodeId);
+    public Node addParam(Long id) {
+        param.add(id);
         return this;
     }
 
-    public Node addParam(Node nodeId) {
-        param.add(nodeId.getId());
+    protected Node addNext(Long id) {
+        next.add(id);
         return this;
     }
 
-    protected Node addNext(Long nodeId) {
-        next.add(nodeId);
+    public Node addCell(Long id) {
+        cell.add(id);
+        return this;
+    }
+
+    public Node addProp(Long id) {
+        properties.add(id);
+        return this;
+    }
+
+    public Node removeLocal(Long id) {
+        local.remove(id);
         return this;
     }
 }

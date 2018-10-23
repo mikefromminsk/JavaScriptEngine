@@ -1,6 +1,21 @@
+function User(name) {
+  this.name = name;
+}
+
+User.prototype.sayHi = function() {
+  alert(this.name);
+};
+
+
+
+var variable11 = {
+    "tes": 1,
+    "te2": 1
+};
+var variable11 = [1, 2];
 var variable3 = true;
-var variable3 = false;
-var variable3 = "qwd";
+var variable4 = false;
+var variable5 = "qwd";
 var variable1;
 var variable2 = 12;
 

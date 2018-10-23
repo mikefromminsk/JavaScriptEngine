@@ -7,4 +7,5 @@ public class  NodeType {
     public static final byte NUMBER = 3;
     public static final byte ARRAY = 5;
     public static final byte OBJECT = 6;
+    public static final byte FUNCTION = 7;
 }
