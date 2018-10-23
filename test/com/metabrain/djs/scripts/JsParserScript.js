@@ -7,23 +7,13 @@ function func3(par){
     return ss;
 }
 
-function func2(par){
-    var ss = 0;
-    if (par == 1)
-        ss = 1;
-    return ss;
-}
-
 func1();
 
 function func1(par){
     return par;
 }
 
-var variable6 = {
-    "tes": 1,
-    "te2": 1
-};
+var variable6 = {"tes": 1, "te2": 1};
 var variable5 = [1, 2];
 var variable4 = true;
 var variable3 = false;

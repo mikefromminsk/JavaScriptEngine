@@ -149,8 +149,6 @@ public class JsParser {
                 return arr;
             }
             byte nodeType = NodeType.STRING;
-            if (literalNode.isString())
-                nodeType = NodeType.STRING;
             if (literalNode.isNumeric())
                 nodeType = NodeType.NUMBER;
             if (literalNode.isAlwaysTrue())
