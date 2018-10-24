@@ -205,13 +205,13 @@ class Node implements InfinityArrayCell {
         if (body != null)
             linkListener.get(LinkType.BODY, body, true);
         for (Long item : local)
-            linkListener.get(LinkType.LOCAL, item, true);
+            linkListener.get(LinkType.LOCAL, item, false);
         for (Long item : param)
-            linkListener.get(LinkType.PARAM, item, true);
+            linkListener.get(LinkType.PARAM, item, false);
         for (Long item : next)
-            linkListener.get(LinkType.NEXT, item, true);
+            linkListener.get(LinkType.NEXT, item, false);
         for (Long item : properties)
-            linkListener.get(LinkType.PROTOTYPE, item, true);
+            linkListener.get(LinkType.PROTOTYPE, item, false);
     }
 
     public String toJson() {
