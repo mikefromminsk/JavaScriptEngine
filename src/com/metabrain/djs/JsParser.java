@@ -1,6 +1,5 @@
 package com.metabrain.djs;
 
-import com.oracle.deploy.update.UpdateCheck;
 import jdk.nashorn.internal.ir.*;
 import jdk.nashorn.internal.parser.Parser;
 import jdk.nashorn.internal.parser.TokenType;

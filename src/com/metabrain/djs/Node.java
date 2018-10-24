@@ -1,9 +1,12 @@
 package com.metabrain.djs;
 
+import com.google.gson.Gson;
 import com.metabrain.gdb.Bytes;
 import com.metabrain.gdb.InfinityArrayCell;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 class Node implements InfinityArrayCell {
 
@@ -106,40 +109,16 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
-
-    private void appendDataBody(ArrayList<Long> links, Long nodeId, byte type) {
-        if (nodeId != null && links != null) {
-            // TODO change type of convert
-            byte[] bytes = Bytes.fromLong(nodeId);
-            bytes[0] = type;
-            long dataLink = Bytes.toLong(bytes);
-            links.add(dataLink);
-        }
-    }
-
-    private void appendArrayBody(ArrayList<Long> links, ArrayList<Long> nodeIdList, byte type) {
-        if (nodeIdList != null && nodeIdList.size() > 0)
-            for (Long nodeId : nodeIdList)
-                appendDataBody(links, nodeId, type);
-    }
-
     @Override
     public byte[] build() {
         ArrayList<Long> links = new ArrayList<>();
-        appendDataBody(links, value, LinkType.VALUE);
-        appendDataBody(links, source, LinkType.SOURCE);
-        appendDataBody(links, title, LinkType.TITLE);
-        appendDataBody(links, set, LinkType.SET);
-        appendDataBody(links, _true, LinkType.TRUE);
-        appendDataBody(links, _else, LinkType.ELSE);
-        appendDataBody(links, exit, LinkType.EXIT);
-        appendDataBody(links, _while, LinkType.WHILE);
-        appendDataBody(links, _if, LinkType.IF);
-        appendDataBody(links, prototype, LinkType.PROTOTYPE);
-        appendDataBody(links, body, LinkType.BODY);
-        appendArrayBody(links, local, LinkType.LOCAL);
-        appendArrayBody(links, param, LinkType.PARAM);
-        appendArrayBody(links, next, LinkType.NEXT);
+        listLinks((linkType, linkId, singleValue) -> {
+            // TODO change type of convert
+            byte[] bytes = Bytes.fromLong(linkId);
+            bytes[0] = type;
+            long dataLink = Bytes.toLong(bytes);
+            links.add(dataLink);
+        });
         return Bytes.fromLongList(links);
     }
 
@@ -196,6 +175,49 @@ class Node implements InfinityArrayCell {
         }
     }
 
+    interface LinkListener {
+        void get(byte linkType, Long linkId, boolean singleValue);
+    }
+
+    public void listLinks(LinkListener linkListener) {
+        if (linkListener == null)
+            return;
+        if (value != null)
+            linkListener.get(LinkType.VALUE, value, true);
+        if (source != null)
+            linkListener.get(LinkType.SOURCE, source, true);
+        if (title != null)
+            linkListener.get(LinkType.TITLE, title, true);
+        if (set != null)
+            linkListener.get(LinkType.SET, set, true);
+        if (_true != null)
+            linkListener.get(LinkType.TRUE, _true, true);
+        if (_else != null)
+            linkListener.get(LinkType.ELSE, _else, true);
+        if (exit != null)
+            linkListener.get(LinkType.EXIT, exit, true);
+        if (_while != null)
+            linkListener.get(LinkType.WHILE, _while, true);
+        if (_if != null)
+            linkListener.get(LinkType.IF, _if, true);
+        if (prototype != null)
+            linkListener.get(LinkType.PROTOTYPE, prototype, true);
+        if (body != null)
+            linkListener.get(LinkType.BODY, body, true);
+        for (Long item : local)
+            linkListener.get(LinkType.LOCAL, item, true);
+        for (Long item : param)
+            linkListener.get(LinkType.PARAM, item, true);
+        for (Long item : next)
+            linkListener.get(LinkType.NEXT, item, true);
+        for (Long item : properties)
+            linkListener.get(LinkType.PROTOTYPE, item, true);
+    }
+
+    public String toJson() {
+        return Formatter.toJson(this);
+    }
+
     public Long getId() {
         return id;
     }
@@ -221,9 +243,9 @@ class Node implements InfinityArrayCell {
     public Node setData(byte[] data) {
         NodeStorage storage = NodeStorage.getInstance();
         Long lastDataId = storage.getData(data);
-        if (lastDataId != null){
+        if (lastDataId != null) {
             setId(lastDataId);
-        }else{
+        } else {
             long position = storage.add(data);
             NodeMetaCell nodeMetaCell = new NodeMetaCell();
             nodeMetaCell.type = getType();

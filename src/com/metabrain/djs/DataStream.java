@@ -2,7 +2,7 @@ package com.metabrain.djs;
 
 public class DataStream {
 
-    int BUFFER_SIZE = 1024 * 500;
+    int BUFFER_SIZE = NodeStorage.MAX_STORAGE_DATA_IN_DB * 500;
     int position;
     int length;
     int index;
@@ -19,4 +19,15 @@ public class DataStream {
         return null;
     }
 
+    byte[] readAll(){
+        return null;
+    }
+
+    public long size() {
+        return 22;
+    }
+
+    public String readString() {
+        return null;
+    }
 }

@@ -24,4 +24,8 @@ public class Functions {
         // TODO add all tokens
         return EQ;
     }
+
+    public static String toString(int functionId) {
+        return null;
+    }
 }

@@ -1,9 +1,6 @@
-for (var i = 0; i < var10; i++)
-        var par = 1;
-var variable7 = -1;
-var variable6 = {"tes": 1, "te2": 1};
-var variable5 = [1, 2];
-var variable4 = true;
-var variable3 = false;
-var variable2 = "qwd";
-var variable1 = 12;
+class Rectangle {
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+}

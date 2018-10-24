@@ -8,4 +8,8 @@ public class  NodeType {
     public static final byte ARRAY = 5;
     public static final byte OBJECT = 6;
     public static final byte FUNCTION = 7;
+
+    public static String toString(byte nodeType) {
+        return null;
+    }
 }

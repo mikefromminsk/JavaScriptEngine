@@ -15,4 +15,8 @@ public class LinkType {
     public static final byte LOCAL = 11;
     public static final byte PARAM = 12;
     public static final byte NEXT = 13;
+
+    public static String toString(byte linkType) {
+        return null;
+    }
 }
