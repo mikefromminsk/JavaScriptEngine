@@ -14,7 +14,7 @@ class JsParserTest {
     @Test
     void parse() {
         try {
-            String scriptStr = FileUtils.readFileToString(new File("test/com/metabrain/djs/scripts/JsParserScript.js"));
+            String scriptStr = FileUtils.readFileToString(new File("test/com/metabrain/djs/parserTests/JsParserScript.js"));
             new JsParser().parse(scriptStr);
         } catch (IOException e) {
             e.printStackTrace();

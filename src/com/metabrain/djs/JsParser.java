@@ -193,20 +193,17 @@ public class JsParser {
         return null;
     }
 
-    public void parse(String sourceString) {
+    public Node parse(String sourceString) {
         Options options = new Options("nashorn");
         options.set("anon.functions", true);
         options.set("parse.only", true);
         options.set("scripting", true);
-
         ErrorManager errors = new ErrorManager();
         Context context = new Context(options, errors, Thread.currentThread().getContextClassLoader());
         Source source = Source.sourceFor("test", sourceString);
         Parser parser = new Parser(context.getEnv(), source, errors);
-        FunctionNode functionNode = parser.parse();
-        Block block = functionNode.getBody();
-        for (Statement statement : block.getStatements())
-            jsLine(new Node(), statement);
+        // TODO catch parse error
+        return jsLine(new Node(), parser.parse().getBody());
     }
 
 

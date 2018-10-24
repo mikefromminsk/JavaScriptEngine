@@ -1,6 +1,5 @@
 package com.metabrain.djs;
 
-import com.google.gson.JsonObject;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
@@ -8,52 +7,38 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NodeTest {
 
     @Test
-    void testPath() {
-        Long id1 = new Node().loadPath("test1").commit().getId();
-        Long id2 = new Node().loadPath("test1").commit().getId();
-        Long id3 = new Node().loadPath("test2").commit().getId();
-        assertEquals(id1, id2);
-        assertNotEquals(id1, id3);
-    }
-
-    @Test
-    void testLocal() {
-        Long id1 = new Node().loadPath("test").makeLocal("local1").commit().getId();
-        Long id2 = new Node().loadPath("test").makeLocal("local1").commit().getId();
-        Long id3 = new Node().loadPath("test").makeLocal("local2").commit().getId();
-        assertEquals(id1, id2);
-        assertNotEquals(id1, id3);
-    }
-
-
-/*
-    @Test
     void testNode() {
-        File scriptsDir = new File(NodeTest.class.getPackage().getName().replace('.', '/') + "scripts");
-        File[] scripts = scriptsDir.listFiles((dir, name) -> name.endsWith(".js"));
-        if (scripts != null)
-            for (File script : scripts) {
-                try {
-                    String source = FileUtils.readFileToString(script, StandardCharsets.UTF_8);
-                    Node node = new Node().commit();
-                    JsParser.parse(source, node);
-                    RunThread.run(node);
-                    for (Long node_id : node.getLocal()){
-
-                    }
-
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        File currentScript = null;
+        String sourceCode = null;
+        RunThread runThread = new RunThread();
+        try {
+            File nodesTestsDir = new File("test/com/metabrain/djs/nodesTests/");
+            for (File script : nodesTestsDir.listFiles()) {
+                currentScript = script;
+                sourceCode = FileUtils.readFileToString(script, StandardCharsets.UTF_8);
+                Node module = new JsParser().parse(sourceCode);
+                runThread.run(module.getId());
+                Node testFunction = module.findLocal("test");
+                assertNotNull(testFunction);
+                assertNotNull(testFunction.getValue());
+                Node testResult = new Node(testFunction.getValue());
+                assertNotNull(testResult);
+                Node resultData = new Node(testResult.getValue());
+                assertNotNull(resultData);
+                assertEquals(resultData.getType(), NodeType.BOOL);
+                assertEquals(resultData.getData().readString(), "true");
             }
-        assertEquals(1, 1);
-    }*/
+        } catch (Exception e) {
+            if (currentScript != null)
+                System.out.println(currentScript.getAbsolutePath());
+            if (sourceCode != null)
+                System.out.println(sourceCode);
+            e.printStackTrace();
+        }
+    }
 }

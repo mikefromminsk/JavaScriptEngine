@@ -1,12 +1,9 @@
 package com.metabrain.djs;
 
-import com.google.gson.Gson;
 import com.metabrain.gdb.Bytes;
 import com.metabrain.gdb.InfinityArrayCell;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 class Node implements InfinityArrayCell {
 
@@ -80,6 +77,10 @@ class Node implements InfinityArrayCell {
         Node newLocalNode = new Node().setTitle(titleId).commit();
         addLocal(newLocalNode.getId()).commit();
         return newLocalNode;
+    }
+
+    public Node findLocal(String title) {
+        return findLocal(title.getBytes());
     }
 
     public Node findLocal(byte[] title) {
@@ -415,5 +416,9 @@ class Node implements InfinityArrayCell {
     public Node removeLocal(Long id) {
         local.remove(id);
         return this;
+    }
+
+    public ArrayList<Long> getCell() {
+        return cell;
     }
 }
