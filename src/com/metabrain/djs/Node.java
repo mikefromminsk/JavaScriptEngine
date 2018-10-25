@@ -40,6 +40,7 @@ class Node implements InfinityArrayCell {
         setType(nodeType);
     }
 
+    //TODO change to static function
     Node(long node_id) {
         NodeStorage.getInstance().get(node_id, this);
     }
@@ -56,6 +57,13 @@ class Node implements InfinityArrayCell {
         else
             NodeStorage.getInstance().set(id, this);
         return this;
+    }
+
+    Long getValueOrSelfId() {
+        Long nodeValue = getValue();
+        if (nodeValue != null)
+            return nodeValue;
+        return getId();
     }
 
     public Node makeLocal(String title) {
@@ -79,6 +87,7 @@ class Node implements InfinityArrayCell {
         return newLocalNode;
     }
 
+    //TODO return Long
     public Node findLocal(String title) {
         return findLocal(title.getBytes());
     }
@@ -174,6 +183,11 @@ class Node implements InfinityArrayCell {
                     break;
             }
         }
+    }
+
+    public Node makePath(String s) {
+        // TODO delete this method
+        return null;
     }
 
     interface LinkListener {
@@ -408,7 +422,7 @@ class Node implements InfinityArrayCell {
         return this;
     }
 
-    public Node addProp(Long id) {
+    public Node addProperty(Long id) {
         properties.add(id);
         return this;
     }
@@ -420,5 +434,9 @@ class Node implements InfinityArrayCell {
 
     public ArrayList<Long> getCell() {
         return cell;
+    }
+
+    public ArrayList<Long> getProperties() {
+        return properties;
     }
 }

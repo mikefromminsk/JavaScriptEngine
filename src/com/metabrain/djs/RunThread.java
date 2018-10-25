@@ -7,28 +7,148 @@ public class RunThread implements Runnable {
     private final static boolean SET_VALUE_FROM_VALUE = false;
     private final static boolean SET_VALUE_FROM_RETURN = true;
 
-    private Long getProps(Long node, Long calledNodeId) {
+    private Long getDefaultPrototype(Byte nodeType) {
+        return new Node(
+                new Node()
+                        .makePath("php/prototypes")
+                        .getId())
+                .findLocal(NodeType.toString(nodeType))
+                .getId();
+    }
 
-        return node;
+    Long propCalledNodeId = null;
+
+    private Long getProps(Long nodeId) {
+        Node node = new Node(nodeId);
+        ArrayList<Long> props = node.getProperties();
+        if (node.getSource() != null && props.size() > 0)
+            nodeId = node.getSource();
+        boolean startFromThis = node.getSource() == null && props.size() > 0;
+        if (startFromThis && propCalledNodeId != null)
+            nodeId = propCalledNodeId;
+
+        if (props.size() > 0)
+            propCalledNodeId = nodeId;
+
+        for (Long propNodeId : props) {
+            run(propNodeId);
+            // TODO check getValue or getValueOrSelfId
+            Node propNameNode = new Node(new Node(propNodeId).getValueOrSelfId());
+            // TODO delete toString
+            String propName = propNameNode.getData().toString();
+            byte propType = propNameNode.getType();
+            if (propType == NodeType.STRING) {
+                // TODO delete duplicate with first call in this func
+                node = new Node(nodeId);
+                Byte nodeType = null;
+                if (node.getValue() != null)
+                    nodeType = new Node(node.getValue()).getType();
+                Long prototypeNodeId = node.getPrototype();
+                if (propName.equals("prototype")) {
+                    if (prototypeNodeId != null) {
+                        nodeId = prototypeNodeId;
+                    } else {// proto by node type
+                        if (prototypeNodeId == null && nodeType == null)
+                            prototypeNodeId = getDefaultPrototype(nodeType);
+                        if (prototypeNodeId != null) {
+                            nodeId = prototypeNodeId;
+                        } else { // create proto
+                            prototypeNodeId = new Node().commit().getId();
+                            node.setPrototype(prototypeNodeId).commit();
+                            nodeId = prototypeNodeId;
+                        }
+                    }
+                    continue;
+                } else { // otherwise
+                    Long findPropNodeId = null;
+                    while (prototypeNodeId != null && findPropNodeId == null) {
+                        findPropNodeId = new Node(prototypeNodeId).findLocal(propName).getId();
+                        if (findPropNodeId == null)
+                            prototypeNodeId = new Node(prototypeNodeId).getPrototype();
+                    }
+                    if (findPropNodeId != null) {
+                        propCalledNodeId = nodeId;
+                        nodeId = findPropNodeId;
+                        continue;
+                    } else {
+                        if (nodeType != null)
+                            prototypeNodeId = getDefaultPrototype(nodeType);
+                        if (prototypeNodeId != null) {
+                            // TODO NullPointerException
+                            findPropNodeId = new Node(prototypeNodeId).findLocal(propName).getId();
+                            if (findPropNodeId != null) {
+                                nodeId = findPropNodeId;
+                                continue;
+                            }
+                        } else {
+                            Long varPrototype = getDefaultPrototype(NodeType.VAR);
+                            findPropNodeId = new Node(varPrototype).findLocal(propName).getId();
+                            if (findPropNodeId != null) {
+                                nodeId = findPropNodeId;
+                                continue;
+                            }
+                        }
+                    }
+                }
+                propCalledNodeId = nodeId;
+                nodeId = new Node(nodeId).makeLocal(propName).getId();
+            } else if (propType == NodeType.NUMBER) {
+                propCalledNodeId = nodeId;
+                int index = Integer.valueOf(propName);
+                nodeId = new Node(nodeId).getCell().get(index);
+            }
+        }
+        return nodeId;
     }
 
 
-    private void call(Node node, Long calledNodeId) {
+    private void cloneObject(Long sourceNodeId, Long templateNodeId) {
+        // TODO delete setType
+        new Node(sourceNodeId).setType(NodeType.OBJECT).commit();
+        run(templateNodeId, sourceNodeId);
+        Node templateNode = new Node(templateNodeId);
 
-    }
-
-
-    private void cloneObject(Long source, Long value) {
-
+        if (templateNode.getNext().size() > 0) {
+            // TODO delete duplicate
+            run(templateNodeId, sourceNodeId);
+        } else {
+            for (Long localNodeId : templateNode.getLocal()) {
+                Node localNode = new Node(localNodeId);
+                if (localNode.getTitle() != null) {
+                    run(localNodeId, sourceNodeId);
+                    Long localValue = new Node(localNodeId).getValue();
+                    if (localValue != null) {
+                        new Node(sourceNodeId)
+                                .addLocal(new Node()
+                                        .setTitle(new Node(localNode.getTitle()).getData().toString())
+                                        .setValue(localValue)
+                                        .commit().getId()
+                                ).commit();
+                    }
+                } else if (localNode.getValue() != null) {
+                    new Node(sourceNodeId)
+                            .addLocal(new Node()
+                                    .setTitle(new Node(localNode.getTitle()).getData().toString())
+                                    .setValue(localNode.getValue())
+                                    .commit().getId()
+                            ).commit();
+                }
+            }
+        }
+        new Node(sourceNodeId)
+                .setPrototype(templateNodeId)
+                .commit();
     }
 
     // TODO add test to cloneArray testing
     private void cloneArray(Long sourceNodeId, Long templateNodeId) {
         Long newArrauNodeId = new Node(NodeType.ARRAY).commit().getId();
         Node templateLinks = new Node(templateNodeId);
-        for (Long templateCellNodeId: templateLinks.getCell()){
+        for (Long templateCellNodeId : templateLinks.getCell()) {
             run(templateCellNodeId);
-            new Node(newArrauNodeId).addCell(getValue(templateCellNodeId));
+            new Node(newArrauNodeId).addCell(
+                    new Node(templateCellNodeId).getValueOrSelfId()
+            ).commit();
         }
         new Node(sourceNodeId).setValue(newArrauNodeId);
     }
@@ -36,12 +156,14 @@ public class RunThread implements Runnable {
     void setValue(Long source, Long value, boolean setType, Long ths) {
         Byte setNodeType = value != null ? new Node(value).getType() : null;
         if (setNodeType == NodeType.VAR) {
-            value = getProps(value, ths);
+            propCalledNodeId = ths;
+            value = getProps(value);
+            ths = propCalledNodeId;
             run(value, ths);
             if (new Node(value).getType() == NodeType.OBJECT) {
                 cloneObject(source, value);
             } else {
-                value = getValueOrNull(value);
+                value = new Node(value).getValue();
                 if (value != null) {
                     if (new Node(value).getType() == NodeType.OBJECT)
                         cloneObject(source, value);
@@ -55,16 +177,16 @@ public class RunThread implements Runnable {
                 Long newNodeId = new Node().commit().getId();
                 cloneObject(newNodeId, value);
                 new Node(source).setValue(newNodeId).commit();
-            }else{
+            } else {
                 cloneObject(source, value);
             }
 
-        }else if (setType == SET_VALUE_FROM_VALUE && setNodeType == NodeType.FUNCTION){
+        } else if (setType == SET_VALUE_FROM_VALUE && setNodeType == NodeType.FUNCTION) {
             // TODO nodetype.FUNCTION change posistion in code
             new Node(source).setBody(value);
-        } else if (value != null){
+        } else if (value != null) {
             run(value, ths);
-            Long valueNodeId = getValueOrNull(value);
+            Long valueNodeId = new Node(value).getValue();
             new Node(source).setValue(valueNodeId).commit();
         } else {
             new Node(source).setValue(null).commit();
@@ -72,16 +194,6 @@ public class RunThread implements Runnable {
     }
 
     //
-    Long getValueOrNull(Long nodeId) {
-        return new Node(nodeId).getValue();
-    }
-
-    Long getValue(Long nodeId) {
-        Long nodeValue = getValueOrNull(nodeId);
-        if (nodeValue != null)
-            return nodeValue;
-        return nodeId;
-    }
 
     Long exitNodeId = null;
 
@@ -101,13 +213,13 @@ public class RunThread implements Runnable {
         }
 
         if (node.getType() == NodeType.FUNCTION) {
-            call(node, calledNodeId);
+            Caller.invoke(node, calledNodeId);
         }
 
         if (node.getSource() != null) {
-            Long calledObjectFromSource = calledNodeId;
-            // calledObjectFromSource bug
-            Long sourceNodeId = getProps(node.getSource(), calledObjectFromSource);
+            propCalledNodeId = calledNodeId;
+            Long sourceNodeId = getProps(node.getSource());
+            Long calledObjectFromSource = propCalledNodeId;
             Long setNodeId = node.getSet();
             if (setNodeId != null) {
                 setValue(sourceNodeId, setNodeId, SET_VALUE_FROM_VALUE, calledObjectFromSource);
@@ -129,7 +241,7 @@ public class RunThread implements Runnable {
 
         if (node.getIf() != null && node.getTrue() != null) {
             run(node.getIf(), calledNodeId);
-            if ("true".equals(new Node(getValue(node.getIf())).getData().toString()))
+            if ("true".equals(new Node(new Node(node.getIf()).getValueOrSelfId()).getData().toString()))
                 run(node.getTrue(), calledNodeId);
             else if (node.getElse() != null)
                 run(node.getElse(), calledNodeId);
@@ -138,7 +250,7 @@ public class RunThread implements Runnable {
 
         if (node.getWhile() != null && node.getIf() != null) {
             run(node.getIf(), calledNodeId);
-            while ("true".equals(new Node(getValue(node.getIf())).getData().toString())) {
+            while ("true".equals(new Node(new Node(node.getIf()).getValueOrSelfId()).getData().toString())) {
                 run(node.getWhile(), calledNodeId);
                 if (exitNodeId != null) {
                     if (exitNodeId.equals(nodeId))

@@ -8,9 +8,6 @@ import jdk.nashorn.internal.runtime.ErrorManager;
 import jdk.nashorn.internal.runtime.Source;
 import jdk.nashorn.internal.runtime.options.Options;
 
-import static jdk.nashorn.internal.parser.TokenType.*;
-import static jdk.nashorn.internal.parser.TokenType.EQ;
-
 public class JsParser {
 
     Node jsLine(Node module, jdk.nashorn.internal.ir.Node statement) {
@@ -139,7 +136,7 @@ public class JsParser {
             Node obj = new Node().commit();
             module.addLocal(obj.getId()).commit(); // TODO commit ?
             for (PropertyNode item : objectNode.getElements())
-                obj.addProp(jsLine(obj, item).getId()); // TODO add 3th param to jsLine $add_to_local_path
+                obj.addProperty(jsLine(obj, item).getId()); // TODO add 3th param to jsLine $add_to_local_path
             module.removeLocal(obj.getId()).commit(); // TODO commit ?
             return obj.commit();
         }

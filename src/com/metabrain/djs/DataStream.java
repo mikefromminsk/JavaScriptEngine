@@ -30,4 +30,8 @@ public class DataStream {
     public String readString() {
         return null;
     }
+
+    public Boolean getBoolean() {
+        return Boolean.valueOf(toString());
+    }
 }
