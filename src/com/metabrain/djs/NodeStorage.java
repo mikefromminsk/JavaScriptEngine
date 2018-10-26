@@ -4,6 +4,10 @@ import com.metabrain.gdb.*;
 import com.metabrain.gdb.tree.Crc16;
 import com.metabrain.gdb.tree.Tree;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class NodeStorage extends InfinityArray {
 
     // TODO add root node when create database
@@ -14,6 +18,7 @@ public class NodeStorage extends InfinityArray {
     private static final String keyValueStorageID = "kvdb";
     private static final String accountStorageID = "account";
 
+    private static ArrayList commitNodes;
     private static InfinityFile dataStorage;
     private static NodeStorage instance;
     private static Tree dataHashTree;
@@ -32,6 +37,7 @@ public class NodeStorage extends InfinityArray {
             dataHashTree = new Tree(hashStorageID);
             keyValueStorage = new Tree(keyValueStorageID);
             accountStorage = new Tree(accountStorageID);
+            commitNodes = new ArrayList();
         }
         return instance;
     }
@@ -105,6 +111,7 @@ public class NodeStorage extends InfinityArray {
     public long addMeta(NodeMetaCell nodeMetaCell) {
         return meta.add(nodeMetaCell);
     }
+
 
     boolean login(String login, String password) {
         byte[] loginHash = Crc16.getHash(login);
