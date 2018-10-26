@@ -1,28 +1,17 @@
-// TODO SGDB: change SimpleGraphDB package to com.metabrain
 // TODO SGDB: add SGDB all clear
 // TODO SGDB: to resolve problem with out of hard memory in SGDB
 // TODO SGDB: create interface of initialization
 // TODO SGDB: upgrade SGBD with stream data and big data
-// TODO SGDB: include exist files in FS
-// TODO SGDB: js script generator
-// TODO DJS: create format of nodes storage in json format
-// TODO DJS: link = 8 bytes = [type,link]
-// TODO DJS: all external funcs in DJS
+// TODO DJS: grouping commits and commit after run
 // TODO DJS: add VCS to DJS
 // TODO DJS: add DHT to DJS darkjs.net
 // TODO DJS: add WebSocket support
 // TODO DJS: change JS code loading way
-// TODO DJS: change visualization of nodes
 // TODO DJS: create simple http UI
-// TODO DJS: find fast replacement of array() in php
 // TODO DJS: adapt DJS to android jar lib
-// TODO DJS: create restorer JS code from JS AST
-// TODO DJS: create format of nodes storage in json format
-// TODO DJS: create save and loading to nds format
+// TODO DJS: create builder of JS code from JS AST
 // TODO DJS: net security
-// TODO DJS: add getters and setters
 // TODO DJS: multithreading
-// TODO DJS: write code in c
 // TODO DJS: double run problem
 // TODO DJS: solve problem with go to up in local links
 // TODO UI: create intellij plugin instead UI

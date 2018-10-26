@@ -74,4 +74,8 @@ public class Formatter {
     private static String mapToJson(Map<String, Map<String, Object>> data) {
         return json.toJson(data);
     }
+
+    public static void load(Node root, String nodesJsData){
+
+    }
 }
