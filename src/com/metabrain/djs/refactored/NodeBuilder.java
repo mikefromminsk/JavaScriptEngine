@@ -2,7 +2,6 @@ package com.metabrain.djs.refactored;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 public class NodeBuilder {
 
@@ -29,9 +28,8 @@ public class NodeBuilder {
             storage.add(node);
         else
             storage.set(node.id, node);
-        if (!node.isSaved) {
+        if (!node.isSaved)
             storage.addToTransaction(node);
-        }
         return this;
     }
 

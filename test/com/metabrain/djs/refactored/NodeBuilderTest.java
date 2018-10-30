@@ -1,6 +1,5 @@
 package com.metabrain.djs.refactored;
 
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -26,7 +25,10 @@ class NodeBuilderTest {
         NodeStorage.getInstance().clearCache();
         assertEquals(secondValueNodeId, builder.get(nodeId).getValueNode().id);
 
-        builder.create(NodeType.STRING).setData("string").commit();
+        String string = "string";
+        Long str1Id = builder.create(NodeType.STRING).setData(string).getId();
+        String str = DataStreamReader.getString(builder.get(str1Id).getData());
+        assertEquals(string, str);
     }
 
 }

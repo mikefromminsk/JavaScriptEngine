@@ -5,10 +5,7 @@ import com.metabrain.gdb.tree.Crc16;
 import com.metabrain.gdb.tree.Tree;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Random;
-import java.util.TreeMap;
+import java.util.*;
 
 public class NodeStorage extends InfinityArray {
 
@@ -85,7 +82,7 @@ public class NodeStorage extends InfinityArray {
             node = new Node();
             node.id = index;
             node.type = metaCell.type;
-            if (metaCell.type == NodeType.STRING) {
+            if (metaCell.type < NodeType.VAR) {
                 node.data = new DataStream(metaCell.start, metaCell.length);
             } else {
                 byte[] readiedData = read(metaCell.start, metaCell.length);
@@ -108,26 +105,26 @@ public class NodeStorage extends InfinityArray {
     private static Random random = new Random();
 
     public void add(Node node) {
-        if (node.type >= NodeType.VAR)
+        if (node.type >= NodeType.VAR) {
             node.id = super.add(node);
-        else {
-            if (node.externalData != null) {
-                Reader in = new InputStreamReader(node.externalData);
-                byte[] hashKey = null;
-                int hash = 0;
-                OutputStream outStream = null;
+        } else {
+            try {
+                if (node.externalData != null) {
+                    Reader in = new InputStreamReader(node.externalData);
+                    byte[] hashKey = null;
+                    int hash = 0;
+                    OutputStream outStream = null;
 
-                NodeMetaCell nodeMetaCell = new NodeMetaCell();
-                nodeMetaCell.type = node.type;
-                nodeMetaCell.length = 0;
-                try {
+                    NodeMetaCell nodeMetaCell = new NodeMetaCell();
+                    nodeMetaCell.type = node.type;
+                    nodeMetaCell.length = 0;
                     char[] buffer = new char[MAX_STORAGE_DATA_IN_DB];
                     byte[] bytes;
                     int readiedBytes;
                     while ((readiedBytes = in.read(buffer)) != -1) {
-                        bytes = Bytes.fromCharArray(buffer);
+                        bytes = Bytes.fromCharArray(Arrays.copyOfRange(buffer, 0, readiedBytes));
                         hash = Crc16.getHash(hash, bytes);
-                        nodeMetaCell.length += bytes.length;
+                        nodeMetaCell.length += readiedBytes;
                         if (outStream == null) {
                             hashKey = bytes;
                             if (readiedBytes == MAX_STORAGE_DATA_IN_DB) {
@@ -144,11 +141,13 @@ public class NodeStorage extends InfinityArray {
                             outStream.write(bytes);
                         }
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    node.id = meta.add(nodeMetaCell);
+                    node.data = new DataStream(nodeMetaCell.start, nodeMetaCell.length);
+                    node.externalData = null;
+                    dataHashTree.put(hashKey, Crc16.hashToBytes(hash), node.id);
                 }
-                node.id = meta.add(nodeMetaCell);
-                dataHashTree.put(hashKey, Crc16.hashToBytes(hash), node.id);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

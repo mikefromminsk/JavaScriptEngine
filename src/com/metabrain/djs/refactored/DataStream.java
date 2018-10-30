@@ -1,11 +1,13 @@
 package com.metabrain.djs.refactored;
 
+import com.metabrain.djs.refactored.NodeStorage;
+
 public class DataStream {
 
-    private int BUFFER_SIZE = NodeStorage.MAX_STORAGE_DATA_IN_DB * 500;
+    private static final long BUFFER_SIZE = NodeStorage.MAX_STORAGE_DATA_IN_DB * 500;
     public long start;
     public long length;
-    long currentPosition;
+    private long currentPosition;
 
     public DataStream(long start, long length) {
         this.start = start;
@@ -18,11 +20,11 @@ public class DataStream {
     }
 
     boolean hasNext() {
-        return currentPosition >= length;
+        return currentPosition < length;
     }
 
     byte[] readFragment() {
-        byte[] data = NodeStorage.getInstance().getSmallData(start, currentPosition, BUFFER_SIZE);
+        byte[] data = NodeStorage.getInstance().getSmallData(start, currentPosition, (int) Math.min(BUFFER_SIZE, length));
         currentPosition += data.length;
         return data;
     }
