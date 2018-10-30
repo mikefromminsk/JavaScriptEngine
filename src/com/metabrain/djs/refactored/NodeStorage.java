@@ -1,22 +1,17 @@
 package com.metabrain.djs.refactored;
 
-import com.metabrain.gdb.Bytes;
-import com.metabrain.gdb.DiskManager;
-import com.metabrain.gdb.InfinityArray;
-import com.metabrain.gdb.InfinityFile;
+import com.metabrain.gdb.*;
 import com.metabrain.gdb.tree.Crc16;
 import com.metabrain.gdb.tree.Tree;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 public class NodeStorage extends InfinityArray {
 
-    public static final Long ROOT_NODE_ID = 0L;
     private static final String nodeStorageID = "node";
     private static final String dataStorageID = "data";
     private static final String hashStorageID = "hash";
@@ -63,15 +58,24 @@ public class NodeStorage extends InfinityArray {
         if (transactionNodes.size() >= MAX_TRANSACTION_CACHE_NODE_COUNT)
             transactionCommit();
         transactionNodes.add(node);
+        node.isSaved = true;
+        nodesCache.put(node.id, node);
     }
 
     public void transactionCommit() {
-        for (Node commitNode : transactionNodes)
+        for (Node commitNode : transactionNodes) {
             if (commitNode.id == null)
                 add(commitNode);
             else
                 set(commitNode.id, commitNode);
+            commitNode.isSaved = false;
+        }
         transactionNodes.clear();
+    }
+
+    @Override
+    public MetaCell initMeta() {
+        return new NodeMetaCell();
     }
 
     public Node get(Long index) {
@@ -79,11 +83,14 @@ public class NodeStorage extends InfinityArray {
         if (node == null) {
             NodeMetaCell metaCell = (NodeMetaCell) getMeta(index);
             node = new Node();
+            node.id = index;
             node.type = metaCell.type;
             if (metaCell.type == NodeType.STRING) {
                 node.data = new DataStream(metaCell.start, metaCell.length);
             } else {
                 byte[] readiedData = read(metaCell.start, metaCell.length);
+                if (readiedData == null)
+                    return null;
                 decodeData(readiedData, metaCell.accessKey);
                 node.parse(readiedData);
             }
@@ -98,53 +105,59 @@ public class NodeStorage extends InfinityArray {
         // else {data is not mutable}
     }
 
+    private static Random random = new Random();
+
     public void add(Node node) {
         if (node.type >= NodeType.VAR)
             node.id = super.add(node);
         else {
             if (node.externalData != null) {
                 Reader in = new InputStreamReader(node.externalData);
-                char[] buffer = new char[MAX_STORAGE_DATA_IN_DB];
-
+                byte[] hashKey = null;
+                int hash = 0;
                 OutputStream outStream = null;
 
-                while (true) {
-                    int hash = 0;
-                    int readiedBytes = -1;
-                    try {
-                        readiedBytes = in.read(buffer, 0, buffer.length);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if (readiedBytes < 0) {
-                        break;
-                    } else if (outStream == null) {
-                        if (readiedBytes == MAX_STORAGE_DATA_IN_DB) {
-                            try {
-                                outStream = new FileOutputStream(DiskManager.getInstance().newBigFile());
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
+                NodeMetaCell nodeMetaCell = new NodeMetaCell();
+                nodeMetaCell.type = node.type;
+                nodeMetaCell.length = 0;
+                try {
+                    char[] buffer = new char[MAX_STORAGE_DATA_IN_DB];
+                    byte[] bytes;
+                    int readiedBytes;
+                    while ((readiedBytes = in.read(buffer)) != -1) {
+                        bytes = Bytes.fromCharArray(buffer);
+                        hash = Crc16.getHash(hash, bytes);
+                        nodeMetaCell.length += bytes.length;
+                        if (outStream == null) {
+                            hashKey = bytes;
+                            if (readiedBytes == MAX_STORAGE_DATA_IN_DB) {
+                                nodeMetaCell.start = random.nextLong();
+                                File file = DiskManager.getInstance().getFileById(nodeMetaCell.start);
+                                if (!file.exists())
+                                    file.createNewFile();
+                                outStream = new FileOutputStream(file, false);
+                                outStream.write(bytes);
+                            } else {
+                                nodeMetaCell.start = dataStorage.add(bytes);
                             }
                         } else {
-                            node.id = super.add(node);
-                        }
-                    }
-                    if (outStream != null) {
-                        try {
-                            byte[] bytes = Bytes.fromCharArray(buffer);
-                            hash = Bytes.toInt(Crc16.getHash(hash, bytes));
-                            // TODO !!!!!!!!!!!!!!
                             outStream.write(bytes);
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+                node.id = meta.add(nodeMetaCell);
+                dataHashTree.put(hashKey, Crc16.hashToBytes(hash), node.id);
             }
         }
     }
 
-    public byte[] getData(long start, long offset, int length) {
+    public byte[] getSmallData(long start, long offset, int length) {
         return dataStorage.read(start + offset, length);
+    }
+
+    public void clearCache() {
+        nodesCache.clear();
     }
 }

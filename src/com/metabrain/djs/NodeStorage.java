@@ -12,6 +12,7 @@ public class NodeStorage extends InfinityArray {
 
     // TODO add root node when create database
     public static final Long ROOT_NODE_ID = 0L;
+    public static final int MAX_STORAGE_DATA_IN_DB = 2048;
     private static final String nodeStorageID = "node";
     private static final String dataStorageID = "data";
     private static final String hashStorageID = "hash";
@@ -84,13 +85,13 @@ public class NodeStorage extends InfinityArray {
 
     public Long getData(String title) {
         if (title != null)
-            return dataHashTree.get(title, Crc16.getHash(title));
+            return dataHashTree.get(title, Crc16.getHashBytes(title));
         return null;
     }
 
     public void putData(String title, Long nodeId) {
         if (title != null && nodeId != null)
-            dataHashTree.put(title, Crc16.getHash(title), nodeId);
+            dataHashTree.put(title, Crc16.getHashBytes(title), nodeId);
     }
 
     public void putData(byte[] title, Long nodeId) {
@@ -100,12 +101,12 @@ public class NodeStorage extends InfinityArray {
     }
 
     public Long getKey(String key) {
-        long value = keyValueStorage.get(key, Crc16.getHash(key));
+        long value = keyValueStorage.get(key, Crc16.getHashBytes(key));
         return value == Long.MAX_VALUE ? null : value;
     }
 
     public void putKey(String key, Long nodeId) {
-        keyValueStorage.put(key, Crc16.getHash(key), nodeId);
+        keyValueStorage.put(key, Crc16.getHashBytes(key), nodeId);
     }
 
     public long addMeta(NodeMetaCell nodeMetaCell) {
@@ -114,16 +115,16 @@ public class NodeStorage extends InfinityArray {
 
 
     boolean login(String login, String password) {
-        byte[] loginHash = Crc16.getHash(login);
+        byte[] loginHash = Crc16.getHashBytes(login);
         long readiedPasswordHash = accountStorage.get(login, loginHash);
-        return readiedPasswordHash == Bytes.toLong(Crc16.getHash(password));
+        return readiedPasswordHash == Bytes.toLong(Crc16.getHashBytes(password));
     }
 
     boolean registration(String login, String password) {
-        byte[] loginHash = Crc16.getHash(login);
+        byte[] loginHash = Crc16.getHashBytes(login);
         boolean loginExist = accountStorage.get(login, loginHash) != Long.MAX_VALUE;
         if (!loginExist) {
-            byte[] passwordHash = Crc16.getHash(password);
+            byte[] passwordHash = Crc16.getHashBytes(password);
             accountStorage.put(login, loginHash, Bytes.toLong(passwordHash));
             return true;
         }
@@ -131,10 +132,10 @@ public class NodeStorage extends InfinityArray {
     }
 
     boolean changePassword(String login, String password, String newPassword) {
-        byte[] loginHash = Crc16.getHash(login);
+        byte[] loginHash = Crc16.getHashBytes(login);
         long readiedPasswordHash = accountStorage.get(login, loginHash);
-        if (readiedPasswordHash == Bytes.toLong(Crc16.getHash(password))) {
-            byte[] newPasswordHash = Crc16.getHash(newPassword);
+        if (readiedPasswordHash == Bytes.toLong(Crc16.getHashBytes(password))) {
+            byte[] newPasswordHash = Crc16.getHashBytes(newPassword);
             accountStorage.put(login, newPasswordHash, Bytes.toLong(newPasswordHash));
             return true;
         }

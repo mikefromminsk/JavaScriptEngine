@@ -1,5 +1,9 @@
 package com.metabrain.djs.refactored;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 public class NodeBuilder {
 
     NodeStorage storage = NodeStorage.getInstance();
@@ -27,13 +31,8 @@ public class NodeBuilder {
             storage.set(node.id, node);
         if (!node.isSaved) {
             storage.addToTransaction(node);
-            node.isSaved = true;
         }
         return this;
-    }
-
-    void onSave() {
-        node.isSaved = false;
     }
 
     public Long getValue() {
@@ -45,10 +44,10 @@ public class NodeBuilder {
     }
 
     public Node getValueNode() {
-        if (node.value instanceof Long)
+        if (node.value instanceof Node)
             return node;
-        else if (node.value instanceof Node)
-            return node;
+        else if (node.value instanceof Long)
+            return (Node) (node.value = storage.get((Long) node.value));
         return null;
     }
 
@@ -61,5 +60,24 @@ public class NodeBuilder {
         if (node.id == null)
             commit();
         return node.id;
+    }
+
+    public DataStream getData() {
+        return node.data;
+    }
+
+    public NodeBuilder setData(String string) {
+        setData(string.getBytes());
+        return this;
+    }
+
+    public NodeBuilder setData(byte[] data) {
+        setData(new ByteArrayInputStream(data));
+        return this;
+    }
+
+    public NodeBuilder setData(InputStream stream) {
+        node.externalData = stream;
+        return this;
     }
 }

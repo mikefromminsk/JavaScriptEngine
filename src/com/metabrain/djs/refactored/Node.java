@@ -38,7 +38,8 @@ public class Node implements InfinityArrayCell {
         ArrayList<Long> links = new ArrayList<>();
         listLinks((linkType, link, singleValue) -> {
             Long linkId = link instanceof Long ? (Long) link : ((Node) link).id;
-            links.add(linkId * 256 + type);
+            long dataLink = linkId * 256L + (long) linkType;
+            links.add(dataLink);
         });
         return Bytes.fromLongList(links);
     }
@@ -75,24 +76,29 @@ public class Node implements InfinityArrayCell {
             linkListener.get(LinkType.BODY, body, true);
         if (functionId != null)
             linkListener.get(LinkType.FUNCTION_ID, functionId, true);
-        for (Object item : local)
-            linkListener.get(LinkType.LOCAL, item, false);
-        for (Object item : param)
-            linkListener.get(LinkType.PARAM, item, false);
-        for (Object item : next)
-            linkListener.get(LinkType.NEXT, item, false);
-        for (Object item : properties)
-            linkListener.get(LinkType.PROTOTYPE, item, false);
-        for (Object item : cell)
-            linkListener.get(LinkType.CELL, item, false);
+        if (local != null)
+            for (Object item : local)
+                linkListener.get(LinkType.LOCAL, item, false);
+        if (param != null)
+            for (Object item : param)
+                linkListener.get(LinkType.PARAM, item, false);
+        if (next != null)
+            for (Object item : next)
+                linkListener.get(LinkType.NEXT, item, false);
+        if (properties != null)
+            for (Object item : properties)
+                linkListener.get(LinkType.PROTOTYPE, item, false);
+        if (cell != null)
+            for (Object item : cell)
+                linkListener.get(LinkType.CELL, item, false);
     }
 
     @Override
     public void parse(byte[] data) {
         long[] links = Bytes.toLongArray(data);
         for (long dataLink : links) {
-             byte linkType = (byte) (dataLink % 256);
-             long linkId = (dataLink - linkType) / 256;
+            byte linkType = (byte) (dataLink % 256);
+            long linkId = (dataLink - linkType) / 256;
             switch (linkType) {
                 case LinkType.VALUE:
                     value = linkId;

@@ -12,7 +12,6 @@ public class NodeMetaCell extends MetaCell {
 
     @Override
     public void parse(byte[] data) {
-        super.parse(data);
         ByteBuffer bytebuffer = ByteBuffer.wrap(data);
         type = bytebuffer.get();
         start = bytebuffer.getLong();

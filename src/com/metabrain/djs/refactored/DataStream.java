@@ -22,7 +22,7 @@ public class DataStream {
     }
 
     byte[] readFragment() {
-        byte[] data = NodeStorage.getInstance().getData(start, currentPosition, BUFFER_SIZE);
+        byte[] data = NodeStorage.getInstance().getSmallData(start, currentPosition, BUFFER_SIZE);
         currentPosition += data.length;
         return data;
     }
