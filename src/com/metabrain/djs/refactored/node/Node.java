@@ -1,4 +1,4 @@
-package com.metabrain.djs.refactored;
+package com.metabrain.djs.refactored.node;
 
 import com.metabrain.gdb.Bytes;
 import com.metabrain.gdb.InfinityArrayCell;

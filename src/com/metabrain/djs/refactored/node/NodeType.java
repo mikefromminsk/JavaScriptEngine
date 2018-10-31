@@ -1,4 +1,4 @@
-package com.metabrain.djs.refactored;
+package com.metabrain.djs.refactored.node;
 
 public class  NodeType {
     public static final byte STRING = -3;

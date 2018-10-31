@@ -1,4 +1,4 @@
-package com.metabrain.djs.refactored;
+package com.metabrain.djs.refactored.node;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -8,22 +8,27 @@ public class NodeBuilder {
     NodeStorage storage = NodeStorage.getInstance();
     Node node;
 
-    NodeBuilder create() {
+    public NodeBuilder create() {
         return create(NodeType.VAR);
     }
 
-    NodeBuilder create(byte type) {
+    public NodeBuilder create(byte type) {
         node = new Node();
         node.type = type;
         return this;
     }
 
-    NodeBuilder get(Long id) {
+    public NodeBuilder get(Long id) {
         node = storage.get(id);
         return this;
     }
 
-    NodeBuilder commit() {
+    public NodeBuilder get(Node node) {
+        this.node = node;
+        return this;
+    }
+
+    public NodeBuilder commit() {
         if (node.id == null)
             storage.add(node);
         else

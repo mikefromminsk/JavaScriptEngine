@@ -1,4 +1,4 @@
-package com.metabrain.djs.refactored;
+package com.metabrain.djs.refactored.node;
 
 public class LinkType {
     public static final byte VALUE = 0;
