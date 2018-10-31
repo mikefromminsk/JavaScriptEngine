@@ -11,6 +11,7 @@ class NodeBuilderTest {
 
     @Test
     //@RepeatedTest(100)
+    // TODO solve problem with RepeatedTest(100)
     void create() {
         NodeBuilder builder = new NodeBuilder();
         Long valueNodeId = builder.create().getId();
