@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public class DataStream {
 
-    private static final long BUFFER_SIZE = NodeStorage.MAX_STORAGE_DATA_IN_DB * 500;
+    private static final int BUFFER_SIZE = NodeStorage.MAX_STORAGE_DATA_IN_DB;
     public long start;
     public long length;
     private long currentPosition;
@@ -21,13 +21,6 @@ public class DataStream {
         this.start = start;
         this.length = length;
         currentPosition = 0;
-        if (length > NodeStorage.MAX_STORAGE_DATA_IN_DB) {
-            try {
-                fileReader = new FileReader(DiskManager.getInstance().getFileById(start));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     boolean hasNext() {
@@ -36,21 +29,27 @@ public class DataStream {
         return nextExist;
     }
 
-    private byte[] readFromDb(){
+    private byte[] readFromDb() {
         byte[] data = storage.getData(start, currentPosition, (int) Math.min(BUFFER_SIZE, length));
         currentPosition += data.length;
         return data;
     }
 
-    private char[] readFromFs(){
+    private char[] readFromFs() {
         try {
-            char[] buf = new char[NodeStorage.MAX_STORAGE_DATA_IN_DB];
+            if (fileReader == null)
+                fileReader = new FileReader(DiskManager.getInstance().getFileById(start));
+            char[] buf = new char[BUFFER_SIZE];
             int readiedChars = fileReader.read(buf);
-            if  ((readiedChars) > 0) {
-                if (readiedChars < NodeStorage.MAX_STORAGE_DATA_IN_DB)
+            if ((readiedChars) > 0) {
+                if (readiedChars < BUFFER_SIZE)
                     buf = Arrays.copyOf(buf, readiedChars); // remove zero bytes
                 currentPosition += readiedChars;
                 return buf;
+            }
+            if (currentPosition == length) {
+                fileReader.close();
+                fileReader = null;
             }
         } catch (IOException e) {
             e.printStackTrace();
