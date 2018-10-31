@@ -13,7 +13,7 @@ import jdk.nashorn.internal.runtime.options.Options;
 
 public class JsParser {
     
-    NodeBuilder builder = new NodeBuilder();
+    private NodeBuilder builder = new NodeBuilder();
 
     Node jsLine(Node module,  jdk.nashorn.internal.ir.Node statement) {
 

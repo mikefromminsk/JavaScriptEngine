@@ -23,7 +23,7 @@ public class DataStream {
         currentPosition = 0;
     }
 
-    boolean hasNext() {
+    public boolean hasNext() {
         boolean nextExist = currentPosition < length;
         if (!nextExist) currentPosition = 0;
         return nextExist;
@@ -57,14 +57,14 @@ public class DataStream {
         return null;
     }
 
-    byte[] readBytes() {
+    public byte[] readBytes() {
         if (length < NodeStorage.MAX_STORAGE_DATA_IN_DB)
             return readFromDb();
         else
             return Bytes.fromCharArray(readFromFs());
     }
 
-    char[] readChars() {
+    public char[] readChars() {
         if (length < NodeStorage.MAX_STORAGE_DATA_IN_DB)
             return Bytes.toCharArray(readFromDb());
         else
