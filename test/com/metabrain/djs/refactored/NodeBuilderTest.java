@@ -2,6 +2,8 @@ package com.metabrain.djs.refactored;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.*;
+
 import static org.junit.Assert.assertEquals;
 
 
@@ -29,6 +31,22 @@ class NodeBuilderTest {
         Long str1Id = builder.create(NodeType.STRING).setData(string).getId();
         String str = DataStreamReader.getString(builder.get(str1Id).getData());
         assertEquals(string, str);
+
+        try {
+            Long fileNodeId = builder.create(NodeType.STRING)
+                    .setData(new FileInputStream("test/com/metabrain/djs/nodeTests/testData.txt"))
+                    .getId();
+            DataStream dataStream = builder.get(fileNodeId).getData();
+
+            StringBuilder stringBuilder = new StringBuilder();
+            while (dataStream.hasNext())
+                stringBuilder.append(dataStream.readChars());
+            byte[] ss = stringBuilder.toString().getBytes();
+
+            assertEquals(1024 * 1024 * 3, ss.length);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
 }

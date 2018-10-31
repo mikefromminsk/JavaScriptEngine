@@ -152,7 +152,7 @@ public class NodeStorage extends InfinityArray {
         }
     }
 
-    public byte[] getSmallData(long start, long offset, int length) {
+    public byte[] getData(long start, long offset, int length) {
         return dataStorage.read(start + offset, length);
     }
 
