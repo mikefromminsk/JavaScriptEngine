@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 public class DataStream {
 
+    // TODO set buffer size > MAX_STORAGE_DATA_IN_DB
     private static final int BUFFER_SIZE = NodeStorage.MAX_STORAGE_DATA_IN_DB;
     public long start;
     public long length;
