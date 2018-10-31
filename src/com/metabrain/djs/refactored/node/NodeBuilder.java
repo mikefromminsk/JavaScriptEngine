@@ -380,23 +380,23 @@ public class NodeBuilder {
         return null;
     }
 
-    public Node getLocal(int index) {
+    public Node getLocalNode(int index) {
         return getListNode(node.local, index);
     }
 
-    public Node getParam(int index) {
+    public Node getParamNode(int index) {
         return getListNode(node.param, index);
     }
 
-    public Node getNext(int index) {
+    public Node getNextNode(int index) {
         return getListNode(node.next, index);
     }
 
-    public Node getCell(int index) {
+    public Node getCellNode(int index) {
         return getListNode(node.cell, index);
     }
 
-    public Node getProperty(int index) {
+    public Node getPropertyNode(int index) {
         return getListNode(node.properties, index);
     }
 
@@ -540,7 +540,22 @@ public class NodeBuilder {
         return this;
     }
 
-    public Node makeLocal(String name) {
+    public Node findLocal(String title) {
+        return findLocal(title.getBytes());
+    }
+
+    public Node findLocal(byte[] title) {
+        if (node.id == null) commit();
+        Long titleId = storage.getDataId(title);
+        if (titleId != null) {
+            for (int i = 0; i < getLocalCount(); i++) {
+                Node local = getLocalNode(i);
+                Long localNodeId = local.title instanceof Node ? ((Node) local.title).id : (Long) local.title;
+                if (titleId.equals(localNodeId))
+                    return local;
+            }
+        }
         return null;
     }
+
 }

@@ -152,11 +152,18 @@ public class NodeStorage extends InfinityArray {
         }
     }
 
+    // TODO change getData function name
     public byte[] getData(long start, long offset, int length) {
         return dataStorage.read(start + offset, length);
     }
 
     public void clearCache() {
         nodesCache.clear();
+    }
+
+    public Long getDataId(byte[] title) {
+        if (title != null)
+            return dataHashTree.get(title, Crc16.getHashBytes(title));
+        return null;
     }
 }

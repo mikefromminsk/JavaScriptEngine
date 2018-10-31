@@ -23,8 +23,8 @@ public class JsParser {
             if (varNode.getInit() != null) {
                 Node setLink = jsLine(module, varNode.getInit());
                 Node node = builder.create()
-                        .setSource(variable.id)
-                        .setSet(setLink.id)
+                        .setSource(variable)
+                        .setSet(setLink)
                         .commit();
                 builder.get(module)
                         .addNext(node)
@@ -125,11 +125,16 @@ public class JsParser {
 
             if (statement instanceof FunctionNode) {
                 FunctionNode functionNode = (FunctionNode) statement;
-                Node func = builder.get(module).makeLocal(functionNode.getName());
+                Node func = builder.get(module).findLocal(functionNode.getName());
+                if (func == null){
+                    func = builder.create().commit();
+                    Node titleData = builder.create(NodeType.STRING).setData(functionNode.getName()).commit();
+                    builder.get(func).setTitle(titleData).commit();
+                }
                 for (IdentNode param : functionNode.getParameters()) {
                     Node titleData = builder.create(NodeType.STRING).setData(param.getName()).commit();
-                    Node title = builder.create().setTitle(titleData).commit();
-                    builder.get(func).addParam(title);
+                    Node paramNode = builder.create().setTitle(titleData).commit();
+                    builder.get(func).addParam(paramNode);
                 }
                 builder.get(func).commit();
                 return jsLine(func, functionNode.getBody());
@@ -147,7 +152,14 @@ public class JsParser {
 
             if (statement instanceof IdentNode) {
                 IdentNode identNode = (IdentNode) statement;
-                return builder.get(module).makeLocal(identNode.getName());
+
+                Node ident = builder.get(module).findLocal(identNode.getName());
+                if (ident == null){
+                    ident = builder.create().commit();
+                    Node titleData = builder.create(NodeType.STRING).setData(identNode.getName()).commit();
+                    builder.get(ident).setTitle(titleData).commit();
+                }
+                return ident;
             }
 
             if (statement instanceof ObjectNode) {
