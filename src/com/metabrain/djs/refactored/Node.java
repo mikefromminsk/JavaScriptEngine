@@ -11,6 +11,7 @@ public class Node implements InfinityArrayCell {
     public boolean isSaved;
     public Long id;
     public DataStream data;
+    // TODO read external data in another thread
     public InputStream externalData;
     public byte type;
     public Long functionId;
