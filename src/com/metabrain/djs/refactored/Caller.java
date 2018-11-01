@@ -5,7 +5,7 @@ import com.metabrain.djs.refactored.node.NodeBuilder;
 import com.metabrain.djs.refactored.node.NodeType;
 import jdk.nashorn.internal.parser.TokenType;
 
-public class Functions {
+public class Caller {
 
     public final static int EQ = 0;
     public static final int UNARY_MINUS = 15;

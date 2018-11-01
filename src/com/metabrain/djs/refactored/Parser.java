@@ -4,14 +4,13 @@ import com.metabrain.djs.refactored.node.Node;
 import com.metabrain.djs.refactored.node.NodeBuilder;
 import com.metabrain.djs.refactored.node.NodeType;
 import jdk.nashorn.internal.ir.*;
-import jdk.nashorn.internal.parser.Parser;
 import jdk.nashorn.internal.parser.TokenType;
 import jdk.nashorn.internal.runtime.Context;
 import jdk.nashorn.internal.runtime.ErrorManager;
 import jdk.nashorn.internal.runtime.Source;
 import jdk.nashorn.internal.runtime.options.Options;
 
-public class JsParser {
+public class Parser {
 
     private NodeBuilder builder = new NodeBuilder();
 
@@ -56,7 +55,7 @@ public class JsParser {
             // TODO add all unary ++a --a a++ a--
             if (unaryNode.tokenType() == TokenType.SUB)
                 return builder.create(NodeType.FUNCTION)
-                        .setFunctionId(Functions.UNARY_MINUS)
+                        .setFunctionId(Caller.UNARY_MINUS)
                         .addParam(jsLine(module, unaryNode.getExpression()))
                         .commit();
         }
@@ -78,7 +77,7 @@ public class JsParser {
                             .commit();
                 } else {
                     Node functionCalc = builder.create(NodeType.FUNCTION)
-                            .setFunctionId(Functions.fromTokenType(binaryNode.tokenType()))
+                            .setFunctionId(Caller.fromTokenType(binaryNode.tokenType()))
                             .addParam(left)
                             .addParam(right)
                             .commit();
@@ -92,7 +91,7 @@ public class JsParser {
                 Node left = jsLine(module, binaryNode.lhs());
                 Node right = jsLine(module, binaryNode.rhs());
                 return builder.create(NodeType.FUNCTION)
-                        .setFunctionId(Functions.fromTokenType(binaryNode.tokenType()))
+                        .setFunctionId(Caller.fromTokenType(binaryNode.tokenType()))
                         .addParam(left)
                         .addParam(right)
                         .commit();
@@ -237,7 +236,7 @@ public class JsParser {
         ErrorManager errors = new ErrorManager();
         Context context = new Context(options, errors, Thread.currentThread().getContextClassLoader());
         Source source = Source.sourceFor("test", sourceString);
-        Parser parser = new Parser(context.getEnv(), source, errors);
+        jdk.nashorn.internal.parser.Parser parser = new jdk.nashorn.internal.parser.Parser(context.getEnv(), source, errors);
         // TODO catch parse error
         return jsLine(builder.create().commit(), parser.parse().getBody());
     }

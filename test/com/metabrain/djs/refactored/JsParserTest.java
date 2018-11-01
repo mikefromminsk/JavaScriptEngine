@@ -14,7 +14,7 @@ class JsParserTest {
         try {
             File file = new File("test/com/metabrain/djs/parserTests/JsParserScript.js");
             String scriptStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-            new JsParser().parse(scriptStr);
+            new Parser().parse(scriptStr);
         } catch (IOException e) {
             e.printStackTrace();
         }
