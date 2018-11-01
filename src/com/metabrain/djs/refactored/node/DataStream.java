@@ -11,7 +11,7 @@ public class DataStream {
 
     // TODO set buffer size > MAX_STORAGE_DATA_IN_DB
     private static final int BUFFER_SIZE = NodeStorage.MAX_STORAGE_DATA_IN_DB;
-    public byte type;
+    private byte type;
     public long start;
     public long length;
     private long currentPosition;

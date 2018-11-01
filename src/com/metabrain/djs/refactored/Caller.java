@@ -21,7 +21,7 @@ public class Caller {
     static Node trueValue = builder.create().setData("true").commit();
     static Node falseValue = builder.create().setData("false").commit();
 
-    static void invoke(Node node, Long calledNodeId){
+    static void invoke(Node node, Node calledNodeId){
         if (node.type == NodeType.FUNCTION){
             switch (node.functionId){
                 case EQ:

@@ -22,14 +22,18 @@ class RunnerTest {
         try {
             File nodesTestsDir = new File("test/com/metabrain/djs/nodesTests/");
             File[] tests = nodesTestsDir.listFiles();
+            Parser parser = new Parser();
             if (tests != null) {
                 for (File script : tests) {
                     currentScript = script;
                     sourceCode = FileUtils.readFileToString(script, StandardCharsets.UTF_8);
-                    Node module = new Parser().parse(sourceCode);
+                    Node module = parser.parse(sourceCode);
                     runThread.run(module);
                     Node testFunction = builder.set(module).findLocal("test");
                     assertNotNull(testFunction);
+
+
+
                     Node testResult = builder.set(testFunction).getValueNode();
                     assertNotNull(testResult);
                     Node testValue = builder.set(testResult).getValueNode();
@@ -45,7 +49,7 @@ class RunnerTest {
                 System.out.println(currentScript.getAbsolutePath());
             if (sourceCode != null)
                 System.out.println(sourceCode);
-            e.printStackTrace();
+            fail(e);
         }
     }
 }

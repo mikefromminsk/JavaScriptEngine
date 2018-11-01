@@ -121,109 +121,125 @@ public class Parser {
                         .setElse(ifElseNode)
                         .commit();
             }
+        }
 
-            if (statement instanceof FunctionNode) {
-                FunctionNode functionNode = (FunctionNode) statement;
-                Node func = builder.set(module).findLocal(functionNode.getName());
-                if (func == null){
-                    func = builder.create().commit();
-                    Node titleData = builder.create(NodeType.STRING).setData(functionNode.getName()).commit();
-                    builder.set(func).setTitle(titleData).commit();
-                }
-                for (IdentNode param : functionNode.getParameters()) {
-                    Node titleData = builder.create(NodeType.STRING).setData(param.getName()).commit();
-                    Node paramNode = builder.create().setTitle(titleData).commit();
-                    builder.set(func).addParam(paramNode);
-                }
-                builder.set(func).commit();
-                return jsLine(func, functionNode.getBody());
+        if (statement instanceof FunctionNode) {
+            FunctionNode functionNode = (FunctionNode) statement;
+            Node func = builder.set(module).findLocal(functionNode.getName());
+            if (func == null) {
+                func = builder.create().commit();
+                Node titleData = builder.create(NodeType.STRING).setData(functionNode.getName()).commit();
+                builder.set(func).setTitle(titleData).commit();
             }
+            for (IdentNode param : functionNode.getParameters()) {
+                Node titleData = builder.create(NodeType.STRING).setData(param.getName()).commit();
+                Node paramNode = builder.create().setTitle(titleData).commit();
+                builder.set(func).addParam(paramNode);
+            }
+            builder.set(func).commit();
+            return jsLine(func, functionNode.getBody());
+        }
 
-            if (statement instanceof ReturnNode) {
-                ReturnNode returnNode = (ReturnNode) statement;
-                Node setNode = jsLine(module, returnNode.getExpression());
-                return builder.create()
-                        .setSource(module)
-                        .setSet(setNode)
-                        .setExit(module)
+        if (statement instanceof ReturnNode) {
+            ReturnNode returnNode = (ReturnNode) statement;
+            Node setNode = jsLine(module, returnNode.getExpression());
+            return builder.create()
+                    .setSource(module)
+                    .setSet(setNode)
+                    .setExit(module)
+                    .commit();
+        }
+
+        if (statement instanceof IdentNode) {
+            IdentNode identNode = (IdentNode) statement;
+
+            Node ident = builder.set(module).findLocal(identNode.getName());
+            if (ident == null) {
+                ident = builder.create().commit();
+                Node titleData = builder.create(NodeType.STRING).setData(identNode.getName()).commit();
+                builder.set(ident).setTitle(titleData).commit();
+                builder.set(module).addLocal(ident);
+            }
+            return ident;
+        }
+
+        if (statement instanceof ObjectNode) {
+            ObjectNode objectNode = (ObjectNode) statement;
+            Node obj = builder.create().commit();
+            builder.set(module).addLocal(obj).commit(); // TODO commit ?
+            for (PropertyNode item : objectNode.getElements())
+                builder.set(obj).addProperty(jsLine(obj, item)); // TODO add 3th param to jsLine $add_to_local_path
+            builder.set(module).removeLocal(obj).commit(); // TODO commit ?
+            return builder.set(obj).commit();
+        }
+
+        if (statement instanceof PropertyNode) {
+            PropertyNode propertyNode = (PropertyNode) statement;
+            String key = "";
+            if (propertyNode.getKey() instanceof LiteralNode) {
+                LiteralNode literalNode = (LiteralNode) propertyNode.getKey();
+                key = literalNode.getString();
+            }
+            if (propertyNode.getValue() instanceof FunctionCall) {
+                Node body = jsLine(module, propertyNode.getValue());
+                Node titleData = builder.create(NodeType.STRING).setData(key).commit();
+                return builder.set(module)
+                        .addLocal(builder.create()
+                                .setTitle(titleData)
+                                .setBody(body)
+                                .getId()
+                        ).commit();
+            } else {
+                Node value = jsLine(module, propertyNode.getValue());
+                Node titleData = builder.create(NodeType.STRING).setData(key).commit();
+                builder.set(value).setTitle(titleData).commit();
+                return builder.set(module)
+                        .addLocal(value)
                         .commit();
             }
+        }
 
-            if (statement instanceof IdentNode) {
-                IdentNode identNode = (IdentNode) statement;
 
-                Node ident = builder.set(module).findLocal(identNode.getName());
-                if (ident == null){
-                    ident = builder.create().commit();
-                    Node titleData = builder.create(NodeType.STRING).setData(identNode.getName()).commit();
-                    builder.set(ident).setTitle(titleData).commit();
+        if (statement instanceof CallNode) { // TODO NewExpression
+            CallNode call = (CallNode) statement;
+            Node callNode = jsLine(module, call.getFunction());
+            if (call.getArgs().size() > 0) {
+                for (jdk.nashorn.internal.ir.Node arg : call.getArgs()) {
+                    Node argNode = jsLine(module, arg);
+                    builder.set(callNode).addParam(argNode);
                 }
-                return ident;
+            } else {
+                builder.set(callNode).addParam(0L);
             }
+            builder.commit();
+            return callNode;
+        }
 
-            if (statement instanceof ObjectNode) {
-                ObjectNode objectNode = (ObjectNode) statement;
-                Node obj = builder.create().commit();
-                builder.set(module).addLocal(obj).commit(); // TODO commit ?
-                for (PropertyNode item : objectNode.getElements())
-                    builder.set(obj).addProperty(jsLine(obj, item)); // TODO add 3th param to jsLine $add_to_local_path
-                builder.set(module).removeLocal(obj).commit(); // TODO commit ?
-                return builder.set(obj).commit();
-            }
+        if (statement instanceof LiteralNode) {
+            LiteralNode literalNode = (LiteralNode) statement;
 
-            if (statement instanceof PropertyNode) {
-                PropertyNode propertyNode = (PropertyNode) statement;
-                String key = "";
-                if (propertyNode.getKey() instanceof LiteralNode) {
-                    LiteralNode literalNode = (LiteralNode) propertyNode.getKey();
-                    key = literalNode.getString();
+            if (literalNode instanceof LiteralNode.ArrayLiteralNode) {
+                LiteralNode.ArrayLiteralNode arrayLiteralNode = (LiteralNode.ArrayLiteralNode) literalNode;
+                Node arr = builder.create(NodeType.ARRAY).commit();
+                for (jdk.nashorn.internal.ir.Node item : arrayLiteralNode.getElementExpressions()) {
+                    Node itemNode = jsLine(module, item);
+                    builder.set(arr).addCell(itemNode);
                 }
-                if (propertyNode.getValue() instanceof FunctionCall) {
-                    Node body = jsLine(module, propertyNode.getValue());
-                    Node titleData = builder.create(NodeType.STRING).setData(key).commit();
-                    return builder.set(module)
-                            .addLocal(builder.create()
-                                    .setTitle(titleData)
-                                    .setBody(body)
-                                    .getId()
-                            ).commit();
-                } else {
-                    Node value = jsLine(module, propertyNode.getValue());
-                    Node titleData = builder.create(NodeType.STRING).setData(key).commit();
-                    builder.set(value).setTitle(titleData).commit();
-                    return builder.set(module)
-                            .addLocal(value)
-                            .commit();
-                }
+                return arr;
             }
-
-            if (statement instanceof LiteralNode) {
-                LiteralNode literalNode = (LiteralNode) statement;
-
-                if (literalNode instanceof LiteralNode.ArrayLiteralNode) {
-                    LiteralNode.ArrayLiteralNode arrayLiteralNode = (LiteralNode.ArrayLiteralNode) literalNode;
-                    Node arr = builder.create(NodeType.ARRAY).commit();
-                    for (jdk.nashorn.internal.ir.Node item : arrayLiteralNode.getElementExpressions()) {
-                        Node itemNode = jsLine(module, item);
-                        builder.set(arr).addCell(itemNode);
-                    }
-                    return arr;
-                }
-                byte nodeType = NodeType.STRING;
-                if (literalNode.isNumeric())
-                    nodeType = NodeType.NUMBER;
-                if (literalNode.isAlwaysTrue())
-                    nodeType = NodeType.BOOL;
-                if (literalNode.isAlwaysFalse())
-                    nodeType = NodeType.BOOL;
-                Node value = builder.create()
-                        .setData(literalNode.getString().getBytes())
-                        .commit();
-                return builder.create()
-                        .setValue(value)
-                        .commit();
-            }
-            return null;
+            byte nodeType = NodeType.STRING;
+            if (literalNode.isNumeric())
+                nodeType = NodeType.NUMBER;
+            if (literalNode.isAlwaysTrue())
+                nodeType = NodeType.BOOL;
+            if (literalNode.isAlwaysFalse())
+                nodeType = NodeType.BOOL;
+            Node value = builder.create(nodeType)
+                    .setData(literalNode.getString())
+                    .commit();
+            return builder.create()
+                    .setValue(value)
+                    .commit();
         }
         return null;
     }
@@ -238,7 +254,9 @@ public class Parser {
         Source source = Source.sourceFor("test", sourceString);
         jdk.nashorn.internal.parser.Parser parser = new jdk.nashorn.internal.parser.Parser(context.getEnv(), source, errors);
         // TODO catch parse error
-        return jsLine(builder.create().commit(), parser.parse().getBody());
+        Node module = builder.create().commit();
+        jsLine(module, parser.parse().getBody());
+        return module;
     }
 
 
