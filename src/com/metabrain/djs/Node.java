@@ -5,7 +5,7 @@ import com.metabrain.gdb.InfinityArrayCell;
 
 import java.util.ArrayList;
 
-class Node implements InfinityArrayCell {
+public class Node implements InfinityArrayCell {
 
     // TODO delete string from Node and NodeStorage
 

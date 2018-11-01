@@ -1,31 +1,45 @@
 package com.metabrain.djs.refactored;
 
+import com.metabrain.djs.refactored.node.Node;
+import com.metabrain.djs.refactored.node.NodeBuilder;
+import com.metabrain.djs.refactored.node.NodeType;
 import jdk.nashorn.internal.parser.TokenType;
 
 public class Functions {
+
     public final static int EQ = 0;
-    public final static int ADD = 1;
-    public static final int SUB = 2;
-    public static final int MUL = 3;
-    public static final int DIV = 4;
-    public static final int MOD = 5;
-    public static final int AND = 6;
-    public static final int OR = 7;
-    public static final int LE = 8;
-    public static final int EQ_STRICT = 9;
-    public static final int NE = 10;
-    public static final int NE_STRICT = 11;
-    public static final int LT = 12 ;
-    public static final int GE = 13;
-    public static final int GT = 14;
     public static final int UNARY_MINUS = 15;
+    private static NodeBuilder builder = new NodeBuilder();
 
     static int fromTokenType(TokenType tokenType){
-        // TODO add all tokens
+        switch (tokenType){
+            case EQ: return EQ;
+        }
         return EQ;
     }
 
-    public static String toString(int functionId) {
-        return null;
+    static Node trueValue = builder.create().setData("true").commit();
+    static Node falseValue = builder.create().setData("false").commit();
+
+    static void invoke(Node node, Long calledNodeId){
+        if (node.type == NodeType.FUNCTION){
+            switch (node.functionId){
+                case EQ:
+                    builder.set(node);
+                    Node left = builder.getParamNode(0);
+                    Node right = builder.getParamNode(1);
+                    if (left != null && right != null){
+                        Node leftValue = builder.set(left).getValueOrSelf();
+                        Node rightValue =  builder.set(right).getValueOrSelf();
+                        if (leftValue.type < NodeType.VAR && rightValue.type < NodeType.VAR){
+                            Object leftObject = builder.set(leftValue).getData().getObject();
+                            Object rightObject = builder.set(rightValue).getData().getObject();
+                            if (leftObject != null && leftObject.equals(rightObject))
+                                builder.set(node).setValue(trueValue).commit();
+                        }
+                    }
+                    builder.set(node).setValue(falseValue).commit();
+            }
+        }
     }
 }

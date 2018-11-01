@@ -24,7 +24,7 @@ public class NodeBuilder {
         return this;
     }
 
-    public NodeBuilder get(Node node) {
+    public NodeBuilder set(Node node) {
         this.node = node;
         return this;
     }
@@ -535,7 +535,7 @@ public class NodeBuilder {
         return this;
     }
 
-    public NodeBuilder setFunctionId(long functionId) {
+    public NodeBuilder setFunctionId(int functionId) {
         node.functionId = functionId;
         return this;
     }
@@ -558,4 +558,8 @@ public class NodeBuilder {
         return null;
     }
 
+    public Node getValueOrSelf() {
+        Node value = getValueNode();
+        return value != null ? value : node;
+    }
 }

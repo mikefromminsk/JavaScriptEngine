@@ -78,8 +78,8 @@ public class NodeStorage extends InfinityArray {
     }
 
     public Long getData(byte[] title) {
-        // TODO change Tree get to byte[]
-        // TODO change Crc16 get to byte[]
+        // TODO change Tree set to byte[]
+        // TODO change Crc16 set to byte[]
         return getData(new String(title));
     }
 
@@ -95,8 +95,8 @@ public class NodeStorage extends InfinityArray {
     }
 
     public void putData(byte[] title, Long nodeId) {
-        // TODO change Tree get to byte[]
-        // TODO change Crc16 get to byte[]
+        // TODO change Tree set to byte[]
+        // TODO change Crc16 set to byte[]
         putData(new String(title), nodeId);
     }
 

@@ -26,7 +26,7 @@ public class JsParser {
                         .setSource(variable)
                         .setSet(setLink)
                         .commit();
-                builder.get(module)
+                builder.set(module)
                         .addNext(node)
                         .commit();
             }
@@ -37,18 +37,18 @@ public class JsParser {
             ForNode forNode = (ForNode) statement;
             // TODO problem with parsing for init
             Node forInitNode = builder.create().commit();
-            builder.get(module).addLocal(forInitNode).commit();
-            builder.get(forInitNode).addNext(jsLine(forInitNode, forNode.getInit()));
+            builder.set(module).addLocal(forInitNode).commit();
+            builder.set(forInitNode).addNext(jsLine(forInitNode, forNode.getInit()));
             Node forBodyNode = jsLine(forInitNode, forNode.getBody());
             Node forStartNode = builder.create()
                     .setWhile(forBodyNode)
                     .setIf(jsLine(forInitNode, forNode.getTest()))
                     .commit();
             Node forModify = jsLine(forInitNode, forNode.getModify());
-            builder.get(forBodyNode).addNext(forModify).commit();
-            builder.get(forInitNode).addNext(forStartNode);
-            builder.get(module).removeLocal(forInitNode);
-            return builder.get(forInitNode).removeLocal(forStartNode).commit(); // TODO remove this line
+            builder.set(forBodyNode).addNext(forModify).commit();
+            builder.set(forInitNode).addNext(forStartNode);
+            builder.set(module).removeLocal(forInitNode);
+            return builder.set(forInitNode).removeLocal(forStartNode).commit(); // TODO remove this line
         }
 
         if (statement instanceof UnaryNode) {
@@ -104,9 +104,9 @@ public class JsParser {
             Block block = (Block) statement;
             for (jdk.nashorn.internal.ir.Node line : block.getStatements()) {
                 Node lineNode = jsLine(module, line);
-                builder.get(module).addNext(lineNode);
+                builder.set(module).addNext(lineNode);
             }
-            return builder.get(module).commit();
+            return builder.set(module).commit();
         }
 
         if (statement instanceof IfNode) {
@@ -125,18 +125,18 @@ public class JsParser {
 
             if (statement instanceof FunctionNode) {
                 FunctionNode functionNode = (FunctionNode) statement;
-                Node func = builder.get(module).findLocal(functionNode.getName());
+                Node func = builder.set(module).findLocal(functionNode.getName());
                 if (func == null){
                     func = builder.create().commit();
                     Node titleData = builder.create(NodeType.STRING).setData(functionNode.getName()).commit();
-                    builder.get(func).setTitle(titleData).commit();
+                    builder.set(func).setTitle(titleData).commit();
                 }
                 for (IdentNode param : functionNode.getParameters()) {
                     Node titleData = builder.create(NodeType.STRING).setData(param.getName()).commit();
                     Node paramNode = builder.create().setTitle(titleData).commit();
-                    builder.get(func).addParam(paramNode);
+                    builder.set(func).addParam(paramNode);
                 }
-                builder.get(func).commit();
+                builder.set(func).commit();
                 return jsLine(func, functionNode.getBody());
             }
 
@@ -153,11 +153,11 @@ public class JsParser {
             if (statement instanceof IdentNode) {
                 IdentNode identNode = (IdentNode) statement;
 
-                Node ident = builder.get(module).findLocal(identNode.getName());
+                Node ident = builder.set(module).findLocal(identNode.getName());
                 if (ident == null){
                     ident = builder.create().commit();
                     Node titleData = builder.create(NodeType.STRING).setData(identNode.getName()).commit();
-                    builder.get(ident).setTitle(titleData).commit();
+                    builder.set(ident).setTitle(titleData).commit();
                 }
                 return ident;
             }
@@ -165,11 +165,11 @@ public class JsParser {
             if (statement instanceof ObjectNode) {
                 ObjectNode objectNode = (ObjectNode) statement;
                 Node obj = builder.create().commit();
-                builder.get(module).addLocal(obj).commit(); // TODO commit ?
+                builder.set(module).addLocal(obj).commit(); // TODO commit ?
                 for (PropertyNode item : objectNode.getElements())
-                    builder.get(obj).addProperty(jsLine(obj, item)); // TODO add 3th param to jsLine $add_to_local_path
-                builder.get(module).removeLocal(obj).commit(); // TODO commit ?
-                return builder.get(obj).commit();
+                    builder.set(obj).addProperty(jsLine(obj, item)); // TODO add 3th param to jsLine $add_to_local_path
+                builder.set(module).removeLocal(obj).commit(); // TODO commit ?
+                return builder.set(obj).commit();
             }
 
             if (statement instanceof PropertyNode) {
@@ -182,7 +182,7 @@ public class JsParser {
                 if (propertyNode.getValue() instanceof FunctionCall) {
                     Node body = jsLine(module, propertyNode.getValue());
                     Node titleData = builder.create(NodeType.STRING).setData(key).commit();
-                    return builder.get(module)
+                    return builder.set(module)
                             .addLocal(builder.create()
                                     .setTitle(titleData)
                                     .setBody(body)
@@ -191,8 +191,8 @@ public class JsParser {
                 } else {
                     Node value = jsLine(module, propertyNode.getValue());
                     Node titleData = builder.create(NodeType.STRING).setData(key).commit();
-                    builder.get(value).setTitle(titleData).commit();
-                    return builder.get(module)
+                    builder.set(value).setTitle(titleData).commit();
+                    return builder.set(module)
                             .addLocal(value)
                             .commit();
                 }
@@ -206,7 +206,7 @@ public class JsParser {
                     Node arr = builder.create(NodeType.ARRAY).commit();
                     for (jdk.nashorn.internal.ir.Node item : arrayLiteralNode.getElementExpressions()) {
                         Node itemNode = jsLine(module, item);
-                        builder.get(arr).addCell(itemNode);
+                        builder.set(arr).addCell(itemNode);
                     }
                     return arr;
                 }

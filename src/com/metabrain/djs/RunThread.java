@@ -32,7 +32,7 @@ public class RunThread implements Runnable {
 
         for (Long propNodeId : props) {
             run(propNodeId);
-            // TODO check getValue or getValueOrSelfId
+            // TODO check getValue or getValueOrSelf
             Node propNameNode = new Node(new Node(propNodeId).getValueOrSelfId());
             // TODO delete toString
             String propName = propNameNode.getData().toString();

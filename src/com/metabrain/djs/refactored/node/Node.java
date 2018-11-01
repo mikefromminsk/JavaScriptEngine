@@ -14,7 +14,7 @@ public class Node implements InfinityArrayCell {
     // TODO read external data in another thread
     public InputStream externalData;
     public byte type;
-    public Long functionId; // change to primitive long
+    public Integer functionId; // change to primitive long
     public Object value;
     public Object source;
     public Object title;
@@ -135,7 +135,7 @@ public class Node implements InfinityArrayCell {
                     body = linkId;
                     break;
                 case LinkType.FUNCTION_ID:
-                    functionId = linkId;
+                    functionId = (int) linkId;
                     break;
                 case LinkType.LOCAL:
                     local.add(linkId);

@@ -83,7 +83,7 @@ public class NodeStorage extends InfinityArray {
             node.id = index;
             node.type = metaCell.type;
             if (metaCell.type < NodeType.VAR) {
-                node.data = new DataStream(metaCell.start, metaCell.length);
+                node.data = new DataStream(metaCell.type, metaCell.start, metaCell.length);
             } else {
                 byte[] readiedData = read(metaCell.start, metaCell.length);
                 if (readiedData == null)
@@ -142,7 +142,7 @@ public class NodeStorage extends InfinityArray {
                         }
                     }
                     node.id = meta.add(nodeMetaCell);
-                    node.data = new DataStream(nodeMetaCell.start, nodeMetaCell.length);
+                    node.data = new DataStream(nodeMetaCell.type, nodeMetaCell.start, nodeMetaCell.length);
                     node.externalData = null;
                     dataHashTree.put(hashKey, Crc16.hashToBytes(hash), node.id);
                 }

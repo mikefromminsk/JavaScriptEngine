@@ -11,13 +11,15 @@ public class DataStream {
 
     // TODO set buffer size > MAX_STORAGE_DATA_IN_DB
     private static final int BUFFER_SIZE = NodeStorage.MAX_STORAGE_DATA_IN_DB;
+    public byte type;
     public long start;
     public long length;
     private long currentPosition;
     private NodeStorage storage = NodeStorage.getInstance();
     private FileReader fileReader;
 
-    public DataStream(long start, long length) {
+    public DataStream(byte type, long start, long length) {
+        this.type = type;
         this.start = start;
         this.length = length;
         currentPosition = 0;
@@ -69,5 +71,20 @@ public class DataStream {
             return Bytes.toCharArray(readFromDb());
         else
             return readFromFs();
+    }
+
+    public Object getObject() {
+        StringBuilder stringBuilder = new StringBuilder();
+        while (hasNext())
+            stringBuilder.append(readChars());
+        String string = stringBuilder.toString();
+        switch (type) {
+            case NodeType.BOOL:
+                return Boolean.valueOf(string);
+            case NodeType.NUMBER:
+                return Double.valueOf(string);
+            default:
+                return string;
+        }
     }
 }
