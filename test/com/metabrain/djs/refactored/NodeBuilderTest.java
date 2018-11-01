@@ -17,7 +17,7 @@ class NodeBuilderTest {
         NodeBuilder builder = new NodeBuilder();
         Long valueNodeId = builder.create().getId();
         Long secondValueNodeId = builder.create().getId();
-        Long nodeId = builder.create().setValue(valueNodeId).getId();
+        Node nodeId = builder.create().setValue(valueNodeId).commit();
         Long valueId = builder.set(nodeId).getValue();
         assertEquals(valueNodeId, valueId);
         NodeStorage.getInstance().transactionCommit();
@@ -30,14 +30,14 @@ class NodeBuilderTest {
         assertEquals(secondValueNodeId, builder.set(nodeId).getValueNode().id);
 
         String string = "string";
-        Long str1Id = builder.create(NodeType.STRING).setData(string).getId();
+        Node str1Id = builder.create(NodeType.STRING).setData(string).commit();
         String str = DataStreamReader.getString(builder.set(str1Id).getData());
         assertEquals(string, str);
 
         try {
-            Long fileNodeId = builder.create(NodeType.STRING)
+            Node fileNodeId = builder.create(NodeType.STRING)
                     .setData(new FileInputStream("test/com/metabrain/djs/nodeTests/testData.txt"))
-                    .getId();
+                    .commit();
             DataStream dataStream = builder.set(fileNodeId).getData();
 
             StringBuilder stringBuilder = new StringBuilder();
