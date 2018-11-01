@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-class JsParserTest {
+class ParserTest {
 
     @Test
     void parse() {

@@ -154,7 +154,7 @@ public class NodeBuilder {
 
     public Node getValueNode() {
         if (node.value instanceof Node)
-            return node;
+            return (Node) node.value;
         else if (node.value instanceof Long)
             return (Node) (node.value = storage.get((Long) node.value));
         return null;
@@ -162,7 +162,7 @@ public class NodeBuilder {
 
     public Node getSourceNode() {
         if (node.source instanceof Node)
-            return node;
+            return (Node) node.source;
         else if (node.source instanceof Long)
             return (Node) (node.source = storage.get((Long) node.source));
         return null;
@@ -170,7 +170,7 @@ public class NodeBuilder {
 
     public Node getTitleNode() {
         if (node.title instanceof Node)
-            return node;
+            return (Node) node.title;
         else if (node.title instanceof Long)
             return (Node) (node.title = storage.get((Long) node.title));
         return null;
@@ -178,7 +178,7 @@ public class NodeBuilder {
 
     public Node getSetNode() {
         if (node.set instanceof Node)
-            return node;
+            return (Node) node.set;
         else if (node.set instanceof Long)
             return (Node) (node.set = storage.get((Long) node.set));
         return null;
@@ -186,7 +186,7 @@ public class NodeBuilder {
 
     public Node getTrueNode() {
         if (node._true instanceof Node)
-            return node;
+            return (Node) node._true;
         else if (node._true instanceof Long)
             return (Node) (node._true = storage.get((Long) node._true));
         return null;
@@ -194,7 +194,7 @@ public class NodeBuilder {
 
     public Node getElseNode() {
         if (node._else instanceof Node)
-            return node;
+            return (Node) node._else;
         else if (node._else instanceof Long)
             return (Node) (node._else = storage.get((Long) node._else));
         return null;
@@ -202,7 +202,7 @@ public class NodeBuilder {
 
     public Node getExitNode() {
         if (node.exit instanceof Node)
-            return node;
+            return (Node) node.exit;
         else if (node.exit instanceof Long)
             return (Node) (node.exit = storage.get((Long) node.exit));
         return null;
@@ -210,7 +210,7 @@ public class NodeBuilder {
 
     public Node getWhileNode() {
         if (node._while instanceof Node)
-            return node;
+            return (Node) node._while;
         else if (node._while instanceof Long)
             return (Node) (node._while = storage.get((Long) node._while));
         return null;
@@ -218,7 +218,7 @@ public class NodeBuilder {
 
     public Node getIfNode() {
         if (node._if instanceof Node)
-            return node;
+            return (Node) node._if;
         else if (node._if instanceof Long)
             return (Node) (node._if = storage.get((Long) node._if));
         return null;
@@ -226,7 +226,7 @@ public class NodeBuilder {
 
     public Node getPrototypeNode() {
         if (node.prototype instanceof Node)
-            return node;
+            return (Node) node.prototype;
         else if (node.prototype instanceof Long)
             return (Node) (node.prototype = storage.get((Long) node.prototype));
         return null;
@@ -234,7 +234,7 @@ public class NodeBuilder {
 
     public Node getBodyNode() {
         if (node.body instanceof Node)
-            return node;
+            return (Node) node.body;
         else if (node.body instanceof Long)
             return (Node) (node.body = storage.get((Long) node.body));
         return null;

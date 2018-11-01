@@ -8,7 +8,7 @@ import com.metabrain.djs.refactored.node.NodeType;
 
 public class Runner {
 
-    NodeBuilder builder = new NodeBuilder();
+    private NodeBuilder builder = new NodeBuilder();
     private final static boolean SET_VALUE_FROM_VALUE = false;
     private final static boolean SET_VALUE_FROM_RETURN = true;
 
@@ -16,7 +16,7 @@ public class Runner {
         return null;
     }
 
-    Node propCalledNodeId = null;
+    private Node propCalledNodeId = null;
 
     private Node getProps(Node node) {
         return node;
@@ -194,13 +194,13 @@ public class Runner {
         }
     }
 
-    Node exitNode = null;
+    private Node exitNode = null;
 
     public void run(Node node) {
         run(node, null);
     }
 
-    public void run(Node node, Node calledNodeId) {
+    private void run(Node node, Node calledNodeId) {
         for (int i = 0; i < builder.set(node).getNextCount(); i++) {
             run(builder.set(node).getNextNode(i));
             if (exitNode != null) {

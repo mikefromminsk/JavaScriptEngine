@@ -19,6 +19,7 @@ class RunnerTest {
         String sourceCode = null;
         NodeBuilder builder = new NodeBuilder();
         Runner runThread = new Runner();
+        Node module;
         try {
             File nodesTestsDir = new File("test/com/metabrain/djs/nodesTests/");
             File[] tests = nodesTestsDir.listFiles();
@@ -27,13 +28,11 @@ class RunnerTest {
                 for (File script : tests) {
                     currentScript = script;
                     sourceCode = FileUtils.readFileToString(script, StandardCharsets.UTF_8);
-                    Node module = parser.parse(sourceCode);
-                    runThread.run(module);
+                    module = parser.parse(sourceCode);
                     Node testFunction = builder.set(module).findLocal("test");
                     assertNotNull(testFunction);
-
-
-
+                    runThread.run(testFunction);
+                    System.out.println(Formatter.toJson(module));
                     Node testResult = builder.set(testFunction).getValueNode();
                     assertNotNull(testResult);
                     Node testValue = builder.set(testResult).getValueNode();
@@ -41,7 +40,7 @@ class RunnerTest {
                     assertEquals(testValue.type, NodeType.BOOL);
                     assertTrue((Boolean) builder.set(testValue).getData().getObject());
                 }
-            }else {
+            } else {
                 fail("tests not found");
             }
         } catch (Exception e) {

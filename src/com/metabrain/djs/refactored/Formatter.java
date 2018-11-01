@@ -1,6 +1,7 @@
 package com.metabrain.djs.refactored;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.metabrain.djs.refactored.node.*;
 
 import java.util.ArrayList;
@@ -10,33 +11,40 @@ import java.util.Map;
 public class Formatter {
 
     static NodeBuilder builder = new NodeBuilder();
+    static final String NODE_PREFIX = "_";
+    static final String TYPE_PREFIX = "type";
+    static final String DATA_PREFIX = "data";
+    static final String FUNCTION_ID_PREFIX = "function_id";
+    static final String STRING_PREFIX = "!";
+    static final String LINK_PREFIX = "@";
 
     private static String dataSimplification(Node node) {
         DataStream dataStream = builder.set(node).getData();
         if (node.type == NodeType.STRING) {
             if (dataStream.length > NodeStorage.MAX_STORAGE_DATA_IN_DB)
-                return "@" + node.id;
+                return LINK_PREFIX + node.id;
             else
-                return "!" + String.valueOf(dataStream.readChars());
+                return STRING_PREFIX + String.valueOf(dataStream.readChars());
         } else {
             return String.valueOf(dataStream.readChars());
         }
     }
 
     public static void toJsonRecursive(Map<String, Map<String, Object>> data, int depth, Node node) {
-        String nodeName = "node" + node.id;
+        String nodeName = NODE_PREFIX + node.id;
         if (data.get(nodeName) != null) return;
 
         Map<String, Object> links = new HashMap<>();
         data.put(nodeName, links);
 
-        links.put("type", NodeType.toString(node.type));
+        if (node.type != NodeType.VAR)
+            links.put(TYPE_PREFIX, NodeType.toString(node.type));
 
         if (node.type < NodeType.VAR)
-            links.put("data", dataSimplification(node));
+            links.put(DATA_PREFIX, dataSimplification(node));
 
         if (node.type == NodeType.FUNCTION)
-            links.put("functionId", node.functionId); // TODO Functions.toString
+            links.put(FUNCTION_ID_PREFIX, node.functionId); // TODO Functions.toString
 
         node.listLinks((linkType, link, singleValue) -> {
             Node linkNode = link instanceof Long ? builder.get((Long) link).getNode() : (Node) link;
@@ -54,7 +62,7 @@ public class Formatter {
                 if (linkNode.type < NodeType.VAR) // TODO exception
                     linkList.add(dataSimplification(linkNode));
                 else {
-                    linkList.add("node" + linkNode);
+                    linkList.add(NODE_PREFIX + linkNode.id);
                     toJsonRecursive(data, depth, linkNode);
                 }
             }
@@ -62,7 +70,7 @@ public class Formatter {
     }
 
     // TODO delete Gson object
-    private static Gson json = new Gson();
+    private static Gson json = new GsonBuilder().setPrettyPrinting().create();
 
     public static String toJson(Node node) {
         Map<String, Map<String, Object>> data = new HashMap<>();
