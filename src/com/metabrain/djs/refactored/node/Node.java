@@ -46,7 +46,7 @@ public class Node implements InfinityArrayCell {
     }
 
 
-    interface NodeLinkListener {
+    public interface NodeLinkListener {
         void get(byte linkType, Object link, boolean singleValue);
     }
 

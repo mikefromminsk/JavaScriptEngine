@@ -562,4 +562,8 @@ public class NodeBuilder {
         Node value = getValueNode();
         return value != null ? value : node;
     }
+
+    public Node getNode() {
+        return node;
+    }
 }
