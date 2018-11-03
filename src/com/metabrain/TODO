@@ -2,6 +2,7 @@
 // TODO SGDB: to resolve problem with out of hard memory in SGDB
 // TODO SGDB: create interface of initialization
 // TODO SGDB: upgrade SGBD with stream data and big data
+// TODO DJS: add other node links list
 // TODO DJS: grouping commits and commit after run
 // TODO DJS: add VCS to DJS
 // TODO DJS: add DHT to DJS darkjs.net
