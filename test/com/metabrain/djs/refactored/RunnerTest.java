@@ -31,7 +31,7 @@ class RunnerTest {
                     module = parser.parse(sourceCode);
                     Node testFunction = builder.set(module).findLocal("test");
                     assertNotNull(testFunction);
-                    runThread.run(testFunction);
+                    //runThread.run(testFunction);
                     System.out.println(Formatter.toJson(module));
                     Node testResult = builder.set(testFunction).getValueNode();
                     assertNotNull(testResult);

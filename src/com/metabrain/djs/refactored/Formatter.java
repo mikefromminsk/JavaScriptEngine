@@ -4,14 +4,47 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.metabrain.djs.refactored.node.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+/*
+* {
+  "node1": {
+    // exept true false
+    "path": "/reverse2",
+    "local": "!wefwef"
+  },
+  "node2": {
+    "start": "/root/dev",
+    "path": "/reverse",
+    "name": "!title",
+    "local": ["node1"],
+    "data": "reverse",
+    "type": "Object",
+    "string": "!new title",
+    "number": 30,
+    "bool": true,
+    "link": "node1",
+    "array": [
+      "node1",
+      "node2",
+      true,
+      30
+    ]
+  }
+}
 
+/* parse priority
+        node_path
+        node_local
+        type
+        data
+
+*
+*
+* */
 public class Formatter {
 
     static NodeBuilder builder = new NodeBuilder();
-    static final String NODE_PREFIX = "_";
+    static final String NODE_PREFIX = "n";
     static final String TYPE_PREFIX = "type";
     static final String DATA_PREFIX = "data";
     static final String FUNCTION_ID_PREFIX = "function_id";
@@ -73,7 +106,7 @@ public class Formatter {
     private static Gson json = new GsonBuilder().setPrettyPrinting().create();
 
     public static String toJson(Node node) {
-        Map<String, Map<String, Object>> data = new HashMap<>();
+        Map<String, Map<String, Object>> data = new LinkedHashMap<>();
         toJsonRecursive(data, 15, node);
         return json.toJson(data);
     }

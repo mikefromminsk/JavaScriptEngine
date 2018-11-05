@@ -103,7 +103,8 @@ public class Parser {
             Block block = (Block) statement;
             for (jdk.nashorn.internal.ir.Node line : block.getStatements()) {
                 Node lineNode = jsLine(module, line);
-                builder.set(module).addNext(lineNode);
+                if (!(line instanceof VarNode))
+                    builder.set(module).addNext(lineNode);
             }
             return builder.set(module).commit();
         }
@@ -158,7 +159,7 @@ public class Parser {
                 ident = builder.create().commit();
                 Node titleData = builder.create(NodeType.STRING).setData(identNode.getName()).commit();
                 builder.set(ident).setTitle(titleData).commit();
-                builder.set(module).addLocal(ident);
+                builder.set(module).addLocal(ident).commit();
             }
             return ident;
         }
