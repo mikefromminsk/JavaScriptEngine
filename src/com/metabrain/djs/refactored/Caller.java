@@ -18,9 +18,6 @@ public class Caller {
         return EQ;
     }
 
-    static Node trueValue = builder.create().setData("true").commit();
-    static Node falseValue = builder.create().setData("false").commit();
-
     static void invoke(Node node, Node calledNodeId){
         if (node.type == NodeType.FUNCTION){
             switch (node.functionId){
@@ -34,10 +31,14 @@ public class Caller {
                         if (leftValue.type < NodeType.VAR && rightValue.type < NodeType.VAR){
                             Object leftObject = builder.set(leftValue).getData().getObject();
                             Object rightObject = builder.set(rightValue).getData().getObject();
-                            if (leftObject != null && leftObject.equals(rightObject))
+                            if (leftObject != null && leftObject.equals(rightObject)) {
+                                Node trueValue = builder.create(NodeType.BOOL).setData("true").commit();
                                 builder.set(node).setValue(trueValue).commit();
+                                return;
+                            }
                         }
                     }
+                    Node falseValue = builder.create(NodeType.BOOL).setData("false").commit();
                     builder.set(node).setValue(falseValue).commit();
             }
         }

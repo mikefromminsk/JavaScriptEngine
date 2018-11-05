@@ -21,10 +21,16 @@ public class Parser {
             Node node = jsLine(module, varNode.getName());
             if (varNode.getInit() != null) {
                 Node setLink = jsLine(node, varNode.getInit());
-                node = builder.create()
-                        .setSource(node)
-                        .setSet(setLink)
-                        .commit();
+                if (setLink.next == null) {
+                    node = builder.create()
+                            .setSource(node)
+                            .setSet(setLink)
+                            .commit();
+                } else {
+                    builder.set(node)
+                            .setBody(setLink)
+                            .commit();
+                }
             }
             return node;
         }

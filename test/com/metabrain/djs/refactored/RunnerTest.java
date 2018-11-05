@@ -29,15 +29,14 @@ class RunnerTest {
                     currentScript = script;
                     sourceCode = FileUtils.readFileToString(script, StandardCharsets.UTF_8);
                     module = parser.parse(sourceCode);
-                    Node testFunction = builder.set(module).findLocal("test");
-                    assertNotNull(testFunction);
-                    //runThread.run(testFunction);
+                    runThread.run(module);
+                    Node testVar = builder.set(module).findLocal("test");
+                    assertNotNull(testVar);
                     System.out.println(Formatter.toJson(module));
-                    Node testResult = builder.set(testFunction).getValueNode();
-                    assertNotNull(testResult);
-                    Node testValue = builder.set(testResult).getValueNode();
+
+                    Node testValue = builder.set(testVar).getValueNode();
                     assertNotNull(testValue);
-                    assertEquals(testValue.type, NodeType.BOOL);
+                    assertEquals(NodeType.BOOL, testValue.type);
                     assertTrue((Boolean) builder.set(testValue).getData().getObject());
                 }
             } else {

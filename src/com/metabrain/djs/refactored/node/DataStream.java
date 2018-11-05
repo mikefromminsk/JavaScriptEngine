@@ -59,25 +59,26 @@ public class DataStream {
         return null;
     }
 
-    public byte[] readBytes() {
-        if (length < NodeStorage.MAX_STORAGE_DATA_IN_DB)
-            return readFromDb();
-        else
-            return Bytes.fromCharArray(readFromFs());
+    public String readString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        while (hasNext()) {
+            char[] buffer;
+            if (length < NodeStorage.MAX_STORAGE_DATA_IN_DB)
+                buffer = Bytes.toCharArray(readFromDb());
+            else
+                buffer = readFromFs();
+            if (buffer != null)
+                stringBuilder.append(buffer);
+        }
+        return stringBuilder.toString();
     }
 
     public char[] readChars() {
-        if (length < NodeStorage.MAX_STORAGE_DATA_IN_DB)
-            return Bytes.toCharArray(readFromDb());
-        else
-            return readFromFs();
+        return readString().toCharArray();
     }
 
     public Object getObject() {
-        StringBuilder stringBuilder = new StringBuilder();
-        while (hasNext())
-            stringBuilder.append(readChars());
-        String string = stringBuilder.toString();
+        String string = readString();
         switch (type) {
             case NodeType.BOOL:
                 return Boolean.valueOf(string);
