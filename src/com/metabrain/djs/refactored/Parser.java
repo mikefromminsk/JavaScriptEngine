@@ -43,7 +43,7 @@ public class Parser {
                 VarNode varNode = (VarNode) statement;
                 if (varNode.getInit() != null && varNode.getInit() instanceof FunctionNode) {
                     return jsLine(module, varNode.getInit());
-                }else {
+                } else {
                     Node node = jsLine(module, varNode.getName());
                     Node setLink = jsLine(node, varNode.getInit());
                     node = builder.create()
@@ -94,10 +94,7 @@ public class Parser {
                     Node left = jsLine(module, binaryNode.lhs());
                     Node right = jsLine(module, binaryNode.rhs());
                     if (binaryNode.tokenType() == TokenType.ASSIGN) {
-                        return builder.create()
-                                .setSource(left)
-                                .setSet(right)
-                                .commit();
+                        return builder.create().setSource(left).setSet(right).commit();
                     } else {
                         Node functionCalc = builder.create(NodeType.FUNCTION)
                                 .setFunctionId(Caller.fromTokenType(binaryNode.tokenType()))

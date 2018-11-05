@@ -372,7 +372,7 @@ public class NodeBuilder {
     }
 
     private Node getListNode(ArrayList<Object> list, int index) {
-        if (list != null && list.size() > index) {
+        if (list != null && index >= 0 && index < list.size()) {
             Object object = list.get(index);
             if (object instanceof Node) return (Node) object;
             if (object instanceof Long) return storage.get((Long) object);
