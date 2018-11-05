@@ -135,9 +135,6 @@ public class Node implements InfinityArrayCell {
                 case LinkType.BODY:
                     body = linkId;
                     break;
-                case LinkType.FUNCTION_ID:
-                    functionId = (int) linkId;
-                    break;
                 case LinkType.LOCAL:
                     local.add(linkId);
                     break;

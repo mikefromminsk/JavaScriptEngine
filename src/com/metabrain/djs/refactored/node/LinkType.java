@@ -31,8 +31,6 @@ public class LinkType {
     private static final String NEXT_NAME = "next";
     public static final byte CELL = 14;
     private static final String CELL_NAME = "cell";
-    public static final byte FUNCTION_ID = 15;
-    private static final String FUNCTION_ID_NAME = "function_id";
 
     public static String toString(byte linkType) {
         switch (linkType){
@@ -51,7 +49,6 @@ public class LinkType {
             case PARAM: return PARAM_NAME;
             case NEXT: return NEXT_NAME;
             case CELL: return CELL_NAME;
-            case FUNCTION_ID: return FUNCTION_ID_NAME;
         }
         return null;
     }

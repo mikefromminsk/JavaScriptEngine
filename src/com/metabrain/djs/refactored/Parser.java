@@ -18,18 +18,15 @@ public class Parser {
 
         if (statement instanceof VarNode) {
             VarNode varNode = (VarNode) statement;
-            Node variable = jsLine(module, varNode.getName());
+            Node node = jsLine(module, varNode.getName());
             if (varNode.getInit() != null) {
-                Node setLink = jsLine(module, varNode.getInit());
-                Node node = builder.create()
-                        .setSource(variable)
+                Node setLink = jsLine(node, varNode.getInit());
+                node = builder.create()
+                        .setSource(node)
                         .setSet(setLink)
                         .commit();
-                builder.set(module)
-                        .addNext(node)
-                        .commit();
             }
-            return variable;
+            return node;
         }
 
         if (statement instanceof ForNode) {
@@ -103,8 +100,7 @@ public class Parser {
             Block block = (Block) statement;
             for (jdk.nashorn.internal.ir.Node line : block.getStatements()) {
                 Node lineNode = jsLine(module, line);
-                if (!(line instanceof VarNode))
-                    builder.set(module).addNext(lineNode);
+                builder.set(module).addNext(lineNode);
             }
             return builder.set(module).commit();
         }
@@ -126,12 +122,7 @@ public class Parser {
 
         if (statement instanceof FunctionNode) {
             FunctionNode functionNode = (FunctionNode) statement;
-            Node func = builder.set(module).findLocal(functionNode.getName());
-            if (func == null) {
-                func = builder.create().commit();
-                Node titleData = builder.create(NodeType.STRING).setData(functionNode.getName()).commit();
-                builder.set(func).setTitle(titleData).commit();
-            }
+            Node func = builder.create().getNode();
             for (IdentNode param : functionNode.getParameters()) {
                 Node titleData = builder.create(NodeType.STRING).setData(param.getName()).commit();
                 Node paramNode = builder.create().setTitle(titleData).commit();
@@ -228,13 +219,11 @@ public class Parser {
                 }
                 return arr;
             }
-            byte nodeType = NodeType.STRING;
+            byte nodeType = NodeType.BOOL;
             if (literalNode.isNumeric())
                 nodeType = NodeType.NUMBER;
-            if (literalNode.isAlwaysTrue())
-                nodeType = NodeType.BOOL;
-            if (literalNode.isAlwaysFalse())
-                nodeType = NodeType.BOOL;
+            else if (literalNode.isString())
+                nodeType = NodeType.STRING;
             Node value = builder.create(nodeType)
                     .setData(literalNode.getString())
                     .commit();

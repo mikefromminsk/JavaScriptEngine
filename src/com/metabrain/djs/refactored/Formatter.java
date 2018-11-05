@@ -67,7 +67,7 @@ public class Formatter {
         String nodeName = NODE_PREFIX + node.id;
         if (data.get(nodeName) != null) return;
 
-        Map<String, Object> links = new HashMap<>();
+        Map<String, Object> links = new LinkedHashMap<>();
         data.put(nodeName, links);
 
         if (node.type != NodeType.VAR)
@@ -85,13 +85,16 @@ public class Formatter {
             if (singleValue) {
                 if (linkNode.type < NodeType.VAR)
                     links.put(linkTypeStr, dataSimplification(linkNode));
-                else if (depth > 0)
+                else if (depth > 0){
+                    links.put(linkTypeStr, NODE_PREFIX + linkNode.id);
                     toJsonRecursive(data, depth - 1, linkNode);
+                }
             } else {
                 Object linkObject = links.get(linkTypeStr);
                 if (linkObject == null)
                     links.put(linkTypeStr, linkObject = new ArrayList<>());
                 ArrayList linkList = (ArrayList) linkObject;
+
                 if (linkNode.type < NodeType.VAR) // TODO exception
                     linkList.add(dataSimplification(linkNode));
                 else {
