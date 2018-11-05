@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +28,9 @@ class RunnerTest {
             File[] tests = nodesTestsDir.listFiles();
             Parser parser = new Parser();
             if (tests != null) {
-                for (File script : tests) {
+                List<File> list = Arrays.asList(tests);
+                Collections.reverse(list);
+                for (File script : list) {
                     currentScript = script;
                     sourceCode = FileUtils.readFileToString(script, StandardCharsets.UTF_8);
                     module = parser.parse(sourceCode);
