@@ -228,9 +228,9 @@ public class Runner {
             if (setNode != null) {
                 setValue(sourceNode, setNode, SET_VALUE_FROM_VALUE, calledObjectFromSource);
             } else {
-                Node methodNodeId = builder.set(sourceNode).getBodyNode();
-                if (methodNodeId != null)
-                    sourceNode = methodNodeId;
+                Node bodyNode = builder.set(sourceNode).getBodyNode();
+                if (bodyNode != null)
+                    sourceNode = bodyNode;
                 if (builder.set(node).getParamCount() != 0) {
                     // TODO execute market add to parser
                     boolean isExecute = builder.set(node).getParamNode(0).id == 0;

@@ -3,4 +3,4 @@ function ssds(){
     return 3;
 }
 
-var test = 3 == 3;
+var test = ssds() == 3;

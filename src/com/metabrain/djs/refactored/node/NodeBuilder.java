@@ -547,6 +547,10 @@ public class NodeBuilder {
     public Node findLocal(byte[] title) {
         if (node.id == null) commit();
         Long titleId = storage.getDataId(title);
+        return findLocal(titleId);
+    }
+
+    public Node findLocal(Long titleId) {
         if (titleId != null) {
             for (int i = 0; i < getLocalCount(); i++) {
                 Node local = getLocalNode(i);
