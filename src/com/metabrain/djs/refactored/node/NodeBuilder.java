@@ -567,6 +567,18 @@ public class NodeBuilder {
         return null;
     }
 
+    public Node findParam(Long titleId) {
+        if (titleId != null) {
+            for (int i = 0; i < getParamCount(); i++) {
+                Node param = getParamNode(i);
+                Long paramNodeId = param.title instanceof Node ? ((Node) param.title).id : (Long) param.title;
+                if (titleId.equals(paramNodeId))
+                    return param;
+            }
+        }
+        return null;
+    }
+
     public Node getValueOrSelf() {
         Node value = getValueNode();
         return value != null ? value : node;
@@ -575,4 +587,5 @@ public class NodeBuilder {
     public Node getNode() {
         return node;
     }
+
 }

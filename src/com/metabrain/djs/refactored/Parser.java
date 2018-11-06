@@ -23,6 +23,8 @@ public class Parser {
         for (int i = localStack.size() - 1; i >= 0; i--) {
             Node node = localStack.get(i);
             Node findNode = builder.set(node).findLocal(titleId);
+            if (findNode == null)
+                findNode = builder.set(node).findParam(titleId);
             if (findNode != null)
                 return findNode;
         }
