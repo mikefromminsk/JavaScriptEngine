@@ -77,11 +77,22 @@ public class Parser {
 
             if (statement instanceof UnaryNode) {
                 UnaryNode unaryNode = (UnaryNode) statement;
-                // TODO add all unary ++a --a a++ a--
+                // TODO add ++a --a
                 TokenType tokenType = unaryNode.tokenType();
-                if (tokenType.toString().equals("-")) {
+                if (tokenType == TokenType.INCPOSTFIX || tokenType == TokenType.DECPOSTFIX) {
+                    Node variable = jsLine(module, unaryNode.getExpression());
+                    Node func = builder.create(NodeType.NATIVE_FUNCTION)
+                            .setFunctionId(Caller.fromTokenType(tokenType))
+                            .addParam(variable)
+                            .commit();
+                    return builder.create()
+                            .setSource(variable)
+                            .setValue(variable) // important
+                            .setSet(func)
+                            .commit();
+                } else if (tokenType.toString().equals("-")) {
                     Node expression = jsLine(module, unaryNode.getExpression());
-                    return builder.create(NodeType.FUNCTION)
+                    return builder.create(NodeType.NATIVE_FUNCTION)
                             .setFunctionId(Caller.UNARY_MINUS)
                             .addParam(expression)
                             .commit();
@@ -108,7 +119,7 @@ public class Parser {
                             binaryNode.tokenType() == TokenType.ASSIGN_SUB ||
                             binaryNode.tokenType() == TokenType.ASSIGN_MUL ||
                             binaryNode.tokenType() == TokenType.ASSIGN_DIV)
-                        right = builder.create(NodeType.FUNCTION)
+                        right = builder.create(NodeType.NATIVE_FUNCTION)
                                 .setFunctionId(Caller.fromTokenType(binaryNode.tokenType()))
                                 .addParam(left)
                                 .addParam(right)
@@ -118,7 +129,7 @@ public class Parser {
                             .setSet(right)
                             .commit();
                 } else {
-                    return builder.create(NodeType.FUNCTION)
+                    return builder.create(NodeType.NATIVE_FUNCTION)
                             .setFunctionId(Caller.fromTokenType(binaryNode.tokenType()))
                             .addParam(left)
                             .addParam(right)
@@ -155,6 +166,7 @@ public class Parser {
             if (statement instanceof FunctionNode) {
                 FunctionNode functionNode = (FunctionNode) statement;
                 Node func = jsLine(module, functionNode.getIdent());
+                func.type = NodeType.FUNCTION;
                 for (IdentNode param : functionNode.getParameters()) {
                     Node titleData = builder.create(NodeType.STRING).setData(param.getName()).commit();
                     Node paramNode = builder.create().setTitle(titleData).commit();

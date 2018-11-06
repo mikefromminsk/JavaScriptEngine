@@ -7,13 +7,14 @@ import jdk.nashorn.internal.parser.TokenType;
 
 public class Caller {
 
+    public final static int UNARY_MINUS = -1;
     public final static int EQ = 0;
     public final static int ADD = 1;
     public final static int SUB = 2;
     public final static int DIV = 3;
     public final static int MUL = 4;
-    public final static int UNARY_MINUS = 15;
-    public final static int UNARY_PLUS = 16;
+    public final static int INC = 5;
+    public final static int DEC = 6;
     private static NodeBuilder builder = new NodeBuilder();
 
     static int fromTokenType(TokenType tokenType) {
@@ -36,6 +37,10 @@ public class Caller {
                 return DIV;
             case ASSIGN_MUL:
                 return MUL;
+            case INCPOSTFIX:
+                return INC;
+            case DECPOSTFIX:
+                return DEC;
         }
         return EQ;
     }
@@ -94,6 +99,18 @@ public class Caller {
                 case UNARY_MINUS:
                     if (leftObject instanceof Double) {
                         Double newString =  - (Double) leftObject;
+                        resultNode = builder.create(NodeType.NUMBER).setData(newString).commit();
+                    }
+                    break;
+                case INC:
+                    if (leftObject instanceof Double) {
+                        Double newString =  (Double) leftObject + 1;
+                        resultNode = builder.create(NodeType.NUMBER).setData(newString).commit();
+                    }
+                    break;
+                case DEC:
+                    if (leftObject instanceof Double) {
+                        Double newString =  (Double) leftObject - 1;
                         resultNode = builder.create(NodeType.NUMBER).setData(newString).commit();
                     }
                     break;

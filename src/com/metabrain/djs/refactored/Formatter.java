@@ -76,7 +76,7 @@ public class Formatter {
         if (node.type < NodeType.VAR)
             links.put(DATA_PREFIX, dataSimplification(node));
 
-        if (node.type == NodeType.FUNCTION)
+        if (node.type == NodeType.NATIVE_FUNCTION)
             links.put(FUNCTION_ID_PREFIX, node.functionId); // TODO Functions.toString
 
         node.listLinks((linkType, link, singleValue) -> {

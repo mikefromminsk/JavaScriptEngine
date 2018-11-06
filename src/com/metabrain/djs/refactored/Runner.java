@@ -160,9 +160,7 @@ public class Runner {
     void setValue(Node source, Node value, boolean setType, Node ths) {
         if (value == null) {
             builder.set(source).setValue(value).commit();
-            return;
-        }
-        if (value.type == NodeType.VAR) {
+        } else if (value.type == NodeType.VAR) {
             propCalledNodeId = ths;
             value = getProps(value);
             ths = propCalledNodeId;
@@ -184,12 +182,12 @@ public class Runner {
                 cloneObject(source, value);
             }
 
-        } /*else if (setType == SET_VALUE_FROM_VALUE && value.type == NodeType.FUNCTION) {
+        } else if (setType == SET_VALUE_FROM_VALUE && value.type == NodeType.FUNCTION) {
             // TODO nodetype.FUNCTION change posistion in code
             builder.set(source).setBody(value).commit();
-        }*/ else {
+        } else {
             run(value, ths);
-            value =  builder.set(value).getValueNode();
+            value = builder.set(value).getValueNode();
             builder.set(source).setValue(value).commit();
         }
     }
@@ -210,7 +208,7 @@ public class Runner {
             }
         }
 
-        if (node.type == NodeType.FUNCTION) {
+        if (node.type == NodeType.NATIVE_FUNCTION) {
             if (builder.set(node).getParamCount() != 0) {
                 for (int i = 0; i < builder.set(node).getParamCount(); i++) {
                     Node sourceParam = builder.set(node).getParamNode(i);
