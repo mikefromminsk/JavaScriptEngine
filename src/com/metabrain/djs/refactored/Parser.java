@@ -97,35 +97,27 @@ public class Parser {
 
             if (statement instanceof BinaryNode) {
                 BinaryNode binaryNode = (BinaryNode) statement;
-                if (binaryNode.isAssignment() || isOperation(binaryNode)) {
-                    Node left = jsLine(module, binaryNode.lhs());
-                    Node right = jsLine(module, binaryNode.rhs());
-                    if (binaryNode.tokenType() == TokenType.ASSIGN) {
-                        return builder.create().setSource(left).setSet(right).commit();
-                    } else if (binaryNode.tokenType() == TokenType.ASSIGN_ADD ||
+                binaryNode.isRelational();
+                binaryNode.isLogical();
+                binaryNode.isSelfModifying();
+                binaryNode.getType();
+                Node left = jsLine(module, binaryNode.lhs());
+                Node right = jsLine(module, binaryNode.rhs());
+                if (binaryNode.isAssignment()) {
+                    if (binaryNode.tokenType() == TokenType.ASSIGN_ADD ||
                             binaryNode.tokenType() == TokenType.ASSIGN_SUB ||
                             binaryNode.tokenType() == TokenType.ASSIGN_MUL ||
-                            binaryNode.tokenType() == TokenType.ASSIGN_DIV) {
-                        Node func = builder.create(NodeType.FUNCTION)
+                            binaryNode.tokenType() == TokenType.ASSIGN_DIV)
+                        right = builder.create(NodeType.FUNCTION)
                                 .setFunctionId(Caller.fromTokenType(binaryNode.tokenType()))
                                 .addParam(left)
                                 .addParam(right)
                                 .commit();
-                        return builder.create()
-                                .setSource(left)
-                                .setSet(func)
-                                .commit();
-                    } else {
-                        return builder.create(NodeType.FUNCTION)
-                                .setFunctionId(Caller.fromTokenType(binaryNode.tokenType()))
-                                .addParam(left)
-                                .addParam(right)
-                                .commit();
-                    }
-                }
-                if (binaryNode.isComparison()) {
-                    Node left = jsLine(module, binaryNode.lhs());
-                    Node right = jsLine(module, binaryNode.rhs());
+                    return builder.create()
+                            .setSource(left)
+                            .setSet(right)
+                            .commit();
+                } else {
                     return builder.create(NodeType.FUNCTION)
                             .setFunctionId(Caller.fromTokenType(binaryNode.tokenType()))
                             .addParam(left)
@@ -244,7 +236,7 @@ public class Parser {
                     builder.set(callNode).addParam(0L);
                 }
                 Node sourceFunc = jsLine(module, call.getFunction());
-                return  builder.set(callNode)
+                return builder.set(callNode)
                         .setSource(sourceFunc)
                         .commit();
             }
@@ -274,17 +266,20 @@ public class Parser {
                         .commit();
             }
             return null;
-        } finally {
+        } finally
+
+        {
             if (addToLocalStack)
                 localStack.remove(module);
         }
+
     }
 
     // this function solve 05testFunctionVariables.js problem with var init
     private boolean isOperation(BinaryNode binaryNode) {
-        try{
+        try {
             return binaryNode.isLocal();
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             return true;
         }
     }
