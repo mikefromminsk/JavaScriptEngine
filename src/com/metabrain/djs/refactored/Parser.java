@@ -95,20 +95,29 @@ public class Parser {
 
             if (statement instanceof BinaryNode) {
                 BinaryNode binaryNode = (BinaryNode) statement;
-                if (binaryNode.isAssignment()) {
+                if (binaryNode.isAssignment() || binaryNode.isLocal()) {
                     Node left = jsLine(module, binaryNode.lhs());
                     Node right = jsLine(module, binaryNode.rhs());
                     if (binaryNode.tokenType() == TokenType.ASSIGN) {
                         return builder.create().setSource(left).setSet(right).commit();
-                    } else {
-                        Node functionCalc = builder.create(NodeType.FUNCTION)
+                    } else if (binaryNode.tokenType() == TokenType.ASSIGN_ADD ||
+                            binaryNode.tokenType() == TokenType.ASSIGN_SUB ||
+                            binaryNode.tokenType() == TokenType.ASSIGN_MUL ||
+                            binaryNode.tokenType() == TokenType.ASSIGN_DIV) {
+                        Node func = builder.create(NodeType.FUNCTION)
                                 .setFunctionId(Caller.fromTokenType(binaryNode.tokenType()))
                                 .addParam(left)
                                 .addParam(right)
                                 .commit();
                         return builder.create()
                                 .setSource(left)
-                                .setSet(functionCalc)
+                                .setSet(func)
+                                .commit();
+                    } else {
+                        return builder.create(NodeType.FUNCTION)
+                                .setFunctionId(Caller.fromTokenType(binaryNode.tokenType()))
+                                .addParam(left)
+                                .addParam(right)
                                 .commit();
                     }
                 }
@@ -128,7 +137,8 @@ public class Parser {
                 Block block = (Block) statement;
                 for (jdk.nashorn.internal.ir.Node line : block.getStatements()) {
                     Node lineNode = jsLine(module, line);
-                    builder.set(module).addNext(lineNode);
+                    if (lineNode.next == null)
+                        builder.set(module).addNext(lineNode);
                 }
                 return builder.set(module).commit();
             }

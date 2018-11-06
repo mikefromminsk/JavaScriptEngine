@@ -20,6 +20,14 @@ public class Caller {
         switch (tokenType) {
             case EQ:
                 return EQ;
+            case ADD:
+                return ADD;
+            case SUB:
+                return SUB;
+            case DIV:
+                return DIV;
+            case MUL:
+                return MUL;
             case ASSIGN_ADD:
                 return ADD;
             case ASSIGN_SUB:
@@ -50,10 +58,9 @@ public class Caller {
         if (left != null && left.type < NodeType.VAR) leftObject = builder.set(left).getData().getObject();
         if (right != null && right.type < NodeType.VAR) rightObject = builder.set(right).getData().getObject();
 
-        int functionId = node.functionId;
         Node resultNode = null;
         try {
-            switch (functionId) {
+            switch (node.functionId) {
                 case EQ:
                     resultNode = (leftObject != null && leftObject.equals(rightObject)) ? trueValue : falseValue;
                     break;
