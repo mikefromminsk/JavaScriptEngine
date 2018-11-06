@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,6 +35,7 @@ class RunnerTest {
                     currentScript = script;
                     sourceCode = FileUtils.readFileToString(script, StandardCharsets.UTF_8);
                     module = parser.parse(sourceCode);
+                    //System.out.println(Formatter.toJson(module));
                     runThread.run(module);
                     Node testVar = builder.set(module).findLocal("test");
                     assertNotNull(testVar);
@@ -47,7 +49,7 @@ class RunnerTest {
             } else {
                 fail("tests not found");
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             if (currentScript != null)
                 System.out.println(currentScript.getAbsolutePath());
             if (sourceCode != null)

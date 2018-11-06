@@ -49,6 +49,11 @@ public class NodeBuilder {
         return node.data;
     }
 
+    public NodeBuilder setData(Double number) {
+        setData("" + number);
+        return this;
+    }
+
     public NodeBuilder setData(String string) {
         setData(string.getBytes());
         return this;

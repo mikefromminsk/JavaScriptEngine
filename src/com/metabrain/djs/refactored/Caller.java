@@ -9,7 +9,11 @@ public class Caller {
 
     public final static int EQ = 0;
     public final static int ADD = 1;
-    public static final int UNARY_MINUS = 15;
+    public final static int SUB = 2;
+    public final static int DIV = 3;
+    public final static int MUL = 4;
+    public final static int UNARY_MINUS = 15;
+    public final static int UNARY_PLUS = 16;
     private static NodeBuilder builder = new NodeBuilder();
 
     static int fromTokenType(TokenType tokenType) {
@@ -18,6 +22,12 @@ public class Caller {
                 return EQ;
             case ASSIGN_ADD:
                 return ADD;
+            case ASSIGN_SUB:
+                return SUB;
+            case ASSIGN_DIV:
+                return DIV;
+            case ASSIGN_MUL:
+                return MUL;
         }
         return EQ;
     }
@@ -31,29 +41,59 @@ public class Caller {
         Node left = builder.getParamNode(0);
         Node right = builder.getParamNode(1);
 
-        Node leftValue = builder.set(left).getValueOrSelf();
-        Node rightValue = builder.set(right).getValueOrSelf();
+        if (left != null) left = builder.set(left).getValueOrSelf();
+        if (right != null) right = builder.set(right).getValueOrSelf();
 
         Object leftObject = null;
         Object rightObject = null;
 
-        if (leftValue.type < NodeType.VAR)
-            leftObject = builder.set(leftValue).getData().getObject();
-        if (rightValue.type < NodeType.VAR)
-            rightObject = builder.set(rightValue).getData().getObject();
+        if (left != null && left.type < NodeType.VAR) leftObject = builder.set(left).getData().getObject();
+        if (right != null && right.type < NodeType.VAR) rightObject = builder.set(right).getData().getObject();
 
-        switch (node.functionId) {
-            case EQ:
-                boolean isTrue = leftObject != null && leftObject.equals(rightObject);
-                builder.set(node).setValue(isTrue ? trueValue : falseValue).commit();
-                break;
-            case ADD:
-                if (leftObject instanceof String && rightObject instanceof String) {
-                    String newString = (String) leftObject + (String) rightObject;
-                    Node newStringNode = builder.create(NodeType.STRING).setData(newString).commit();
-                    builder.set(node).setValue(newStringNode).commit();
-                }
-                break;
+        int functionId = node.functionId;
+        Node resultNode = null;
+        try {
+            switch (functionId) {
+                case EQ:
+                    resultNode = (leftObject != null && leftObject.equals(rightObject)) ? trueValue : falseValue;
+                    break;
+                case ADD:
+                    if (leftObject instanceof String && rightObject instanceof String) {
+                        String newString = (String) leftObject + (String) rightObject;
+                        resultNode = builder.create(NodeType.STRING).setData(newString).commit();
+                    } else if (leftObject instanceof Double && rightObject instanceof Double) {
+                        Double newString = (Double) leftObject + (Double) rightObject;
+                        resultNode = builder.create(NodeType.NUMBER).setData(newString).commit();
+                    }
+                    break;
+                case SUB:
+                    if (leftObject instanceof Double && rightObject instanceof Double) {
+                        Double newString = (Double) leftObject - (Double) rightObject;
+                        resultNode = builder.create(NodeType.NUMBER).setData(newString).commit();
+                    }
+                    break;
+                case MUL:
+                    if (leftObject instanceof Double && rightObject instanceof Double) {
+                        Double newString = (Double) leftObject * (Double) rightObject;
+                        resultNode = builder.create(NodeType.NUMBER).setData(newString).commit();
+                    }
+                    break;
+                case DIV:
+                    if (leftObject instanceof Double && rightObject instanceof Double) {
+                        Double newString = (Double) leftObject / (Double) rightObject;
+                        resultNode = builder.create(NodeType.NUMBER).setData(newString).commit();
+                    }
+                    break;
+                case UNARY_MINUS:
+                    if (leftObject instanceof Double) {
+                        Double newString =  - (Double) leftObject;
+                        resultNode = builder.create(NodeType.NUMBER).setData(newString).commit();
+                    }
+                    break;
+            }
+        } catch (Exception e) {
+            // TODO add exceptions to djs
         }
+        builder.set(node).setValue(resultNode).commit();
     }
 }

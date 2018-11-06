@@ -76,11 +76,16 @@ public class Parser {
             if (statement instanceof UnaryNode) {
                 UnaryNode unaryNode = (UnaryNode) statement;
                 // TODO add all unary ++a --a a++ a--
-                if (unaryNode.tokenType() == TokenType.SUB)
+                TokenType tokenType = unaryNode.tokenType();
+                if (tokenType.toString().equals("-")) {
+                    Node expression = jsLine(module, unaryNode.getExpression());
                     return builder.create(NodeType.FUNCTION)
                             .setFunctionId(Caller.UNARY_MINUS)
-                            .addParam(jsLine(module, unaryNode.getExpression()))
+                            .addParam(expression)
                             .commit();
+                } else {
+                    return jsLine(module, unaryNode.getExpression());
+                }
             }
 
             if (statement instanceof ExpressionStatement) {
@@ -132,7 +137,7 @@ public class Parser {
                 IfNode ifStatement = (IfNode) statement;
                 Node ifQuestionNode = jsLine(module, ifStatement.getTest());
                 Node ifTrueNode = jsLine(module, ifStatement.getPass());
-                Node ifElseNode = null;
+                Node ifElseNode;
                 if (ifStatement.getFail() != null) {
                     ifElseNode = jsLine(module, ifStatement.getFail());
                     return builder.create()
