@@ -232,7 +232,7 @@ public class Parser {
 
             if (statement instanceof CallNode) { // TODO NewExpression
                 CallNode call = (CallNode) statement;
-                Node callNode = jsLine(module, call.getFunction());
+                Node callNode = builder.create().commit();
                 if (call.getArgs().size() > 0) {
                     for (jdk.nashorn.internal.ir.Node arg : call.getArgs()) {
                         Node argNode = jsLine(module, arg);
@@ -241,8 +241,10 @@ public class Parser {
                 } else {
                     builder.set(callNode).addParam(0L);
                 }
-                builder.commit();
-                return callNode;
+                Node sourceFunc = jsLine(module, call.getFunction());
+                return  builder.set(callNode)
+                        .setSource(sourceFunc)
+                        .commit();
             }
 
             if (statement instanceof LiteralNode) {

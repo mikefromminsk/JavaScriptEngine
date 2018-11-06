@@ -35,6 +35,7 @@ class RunnerTest {
                     currentScript = script;
                     sourceCode = FileUtils.readFileToString(script, StandardCharsets.UTF_8);
                     module = parser.parse(sourceCode);
+                    // System.out.println(Formatter.toJson(module));
                     runThread.run(module);
                     Node testVar = builder.set(module).findLocal("test");
                     assertNotNull(testVar);
