@@ -95,7 +95,7 @@ public class Parser {
 
             if (statement instanceof BinaryNode) {
                 BinaryNode binaryNode = (BinaryNode) statement;
-                if (binaryNode.isAssignment() || binaryNode.isLocal()) {
+                if (binaryNode.isAssignment() || isOperation(binaryNode)) {
                     Node left = jsLine(module, binaryNode.lhs());
                     Node right = jsLine(module, binaryNode.rhs());
                     if (binaryNode.tokenType() == TokenType.ASSIGN) {
@@ -273,6 +273,15 @@ public class Parser {
         } finally {
             if (addToLocalStack)
                 localStack.remove(module);
+        }
+    }
+
+    // this function solve 05testFunctionVariables.js problem with var init
+    private boolean isOperation(BinaryNode binaryNode) {
+        try{
+            return binaryNode.isLocal();
+        }catch (NullPointerException e){
+            return true;
         }
     }
 
