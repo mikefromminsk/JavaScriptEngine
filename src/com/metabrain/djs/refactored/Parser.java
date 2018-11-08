@@ -108,10 +108,6 @@ public class Parser {
 
             if (statement instanceof BinaryNode) {
                 BinaryNode binaryNode = (BinaryNode) statement;
-                binaryNode.isRelational();
-                binaryNode.isLogical();
-                binaryNode.isSelfModifying();
-                binaryNode.getType();
                 Node left = jsLine(module, binaryNode.lhs());
                 Node right = jsLine(module, binaryNode.rhs());
                 if (binaryNode.isAssignment()) {
@@ -138,6 +134,31 @@ public class Parser {
             }
 
 
+            /*if (statement instanceof IndexNode) {
+                IndexNode index = (IndexNode) statement;
+                Node base = jsLine(module, index.getBase());
+                Node objectNode = builder.create().setSource(base).commit();
+
+                if (index.getIndex() instanceof LiteralNode || index.getIndex() instanceof IdentNode) {
+                    Node indexNode = jsLine(module, index.getIndex());
+                    builder.set(objectNode).addProperty(indexNode).commit();
+                }
+                return objectNode;
+            }*/
+
+            if (statement instanceof AccessNode) {
+                AccessNode index = (AccessNode) statement;
+                Node base;
+
+                if (index.getBase() instanceof IdentNode) {
+                    base = jsLine(module, index.getBase());
+                    base = builder.create().setSource(base).commit();
+                } else
+                    base = jsLine(module, index.getBase());
+                Node propertyNode = builder.create(NodeType.STRING).setData(index.getProperty()).commit();
+                builder.set(base).addProperty(propertyNode).commit();
+                return base;
+            }
 
             if (statement instanceof Block) {
                 Block block = (Block) statement;
@@ -259,11 +280,6 @@ public class Parser {
                         .commit();
             }
 
-            if (statement instanceof AccessNode) {
-                AccessNode propertyNode = (AccessNode) statement;
-
-                String key = "";
-            }
 
             if (statement instanceof LiteralNode) {
                 LiteralNode literalNode = (LiteralNode) statement;
@@ -290,9 +306,7 @@ public class Parser {
                         .commit();
             }
             return null;
-        } finally
-
-        {
+        } finally {
             if (addToLocalStack)
                 localStack.remove(module);
         }

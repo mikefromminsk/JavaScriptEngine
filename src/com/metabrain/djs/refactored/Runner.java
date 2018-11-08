@@ -12,17 +12,27 @@ public class Runner {
     private final static boolean SET_VALUE_FROM_VALUE = false;
     private final static boolean SET_VALUE_FROM_RETURN = true;
 
-    private Node defaultPrototypes = builder.get(0L).getObject("defaultPrototypes");
+    private Node defaultPrototypes;// = builder.get(0L).getObject("defaultPrototypes");
 
     private Node getDefaultPrototype(Byte nodeType) {
-        if (defaultPrototypes == null){
-            Node root = builder.get(0L).getNode();
+        if (defaultPrototypes == null) {
+            NodeBuilder nameBuilder = new NodeBuilder();
             NodeBuilder prototypeBuilder = new NodeBuilder();
             Node stringPrototype = prototypeBuilder.create()
-                    .addLocal(builder.create(NodeType.NATIVE_FUNCTION).setFunctionId(Caller.STRING_REVERCE).commit())
-                    .addLocal(builder.create(NodeType.NATIVE_FUNCTION).setFunctionId(Caller.STRING_TRIM).commit())
+                    .setTitle(nameBuilder.create(NodeType.STRING).setData(NodeType.STRING_NAME).commit())
+                    .addLocal(builder.create(NodeType.NATIVE_FUNCTION)
+                            .setTitle(nameBuilder.create(NodeType.STRING).setData(Caller.STRING_REVERCE_NAME).commit())
+                            .setFunctionId(Caller.STRING_REVERCE)
+                            .commit())
+                    .addLocal(builder.create(NodeType.NATIVE_FUNCTION)
+                            .setTitle(nameBuilder.create(NodeType.STRING).setData(Caller.STRING_TRIM_NAME).commit())
+                            .setFunctionId(Caller.STRING_TRIM)
+                            .commit())
                     .commit();
-            builder.set(root).putObject(NodeType.STRING_NAME, stringPrototype);
+            defaultPrototypes = builder.create()
+                    .addLocal(stringPrototype)
+                    .commit();
+            builder.get(0L).putObject("defaultPrototypes", defaultPrototypes);
         }
         return builder.set(defaultPrototypes).findLocal(NodeType.toString(nodeType));
     }
@@ -30,20 +40,21 @@ public class Runner {
     private Node propCalledNode = null;
 
     private Node getProps(Node node) {
-        if (builder.set(node).getSource() != null && builder.set(node).getPropertiesCount() > 0)
-            node = builder.set(node).getSourceNode();
-        boolean startFromThis = builder.set(node).getSource() == null && builder.set(node).getPropertiesCount() > 0;
+        Node startNode = node;
+        if (builder.set(startNode).getSource() != null && builder.set(startNode).getPropertiesCount() > 0)
+            node = builder.set(startNode).getSourceNode();
+        boolean startFromThis = builder.set(startNode).getSource() == null && builder.set(node).getPropertiesCount() > 0;
         if (startFromThis && propCalledNode != null)
-            node = propCalledNode;
+            startNode = propCalledNode;
 
         if (builder.set(node).getPropertiesCount() > 0)
             propCalledNode = node;
 
-        for (int i = 0; i < builder.set(node).getPropertiesCount(); i++) {
-            Node propNode = builder.set(node).getPropertyNode(i);
+        for (int i = 0; i < builder.set(startNode).getPropertiesCount(); i++) {
+            Node propNode = builder.set(startNode).getPropertyNode(i);
             run(propNode);
             // TODO check getValue or getValueOrSelf
-            Node propNameNode = builder.set(propNode).getValueNode();
+            Node propNameNode = builder.set(propNode).getValueOrSelf();
             byte propType = propNameNode.type;
             if (propType == NodeType.STRING) {
                 String propName = (String) builder.set(propNameNode).getData().getObject();

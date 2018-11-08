@@ -373,7 +373,7 @@ public class NodeBuilder {
     }
 
     public int getPropertiesCount() {
-        return node.properties != null ? node.properties.size() : 0;
+        return node.prop != null ? node.prop.size() : 0;
     }
 
     private Node getListNode(ArrayList<Object> list, int index) {
@@ -402,7 +402,7 @@ public class NodeBuilder {
     }
 
     public Node getPropertyNode(int index) {
-        return getListNode(node.properties, index);
+        return getListNode(node.prop, index);
     }
 
     public NodeBuilder addLocal(Long id) {
@@ -434,9 +434,9 @@ public class NodeBuilder {
     }
 
     public NodeBuilder addProperty(Long id) {
-        if (node.properties == null)
-            node.properties = new ArrayList<>();
-        node.properties.add(id);
+        if (node.prop == null)
+            node.prop = new ArrayList<>();
+        node.prop.add(id);
         return this;
     }
 
@@ -469,9 +469,9 @@ public class NodeBuilder {
     }
 
     public NodeBuilder addProperty(Node item) {
-        if (node.properties == null)
-            node.properties = new ArrayList<>();
-        node.properties.add(item);
+        if (node.prop == null)
+            node.prop = new ArrayList<>();
+        node.prop.add(item);
         return this;
     }
 
@@ -511,7 +511,7 @@ public class NodeBuilder {
     }
 
     public NodeBuilder removeProperty(Long nodeId) {
-        removeFromListNode(node.properties, nodeId);
+        removeFromListNode(node.prop, nodeId);
         return this;
     }
 

@@ -20,7 +20,9 @@ public class Caller {
     public final static int LT = 9; // <
     public final static int LE = 10; // <=
     public final static int STRING_REVERCE = 11; // "abc".reverse() -> "cba"
-    public static final int STRING_TRIM = 12;// " abc ".trim() -> "abc"
+    public final static String STRING_REVERCE_NAME = "reverse";
+    public static final int STRING_TRIM = 12;
+    public final static String STRING_TRIM_NAME = "trim";
     private static NodeBuilder builder = new NodeBuilder();
 
     static int fromTokenType(TokenType tokenType) {
@@ -62,10 +64,9 @@ public class Caller {
     private static Node trueValue = builder.create(NodeType.BOOL).setData("true").commit();
     private static Node falseValue = builder.create(NodeType.BOOL).setData("false").commit();
 
-    static void invoke(Node node, Node thsNode) {
+    static void invoke(Node node, Node ths) {
         builder.set(node);
 
-        Node ths = builder.getParamNode(0);
         Node left = builder.getParamNode(0);
         Node right = builder.getParamNode(1);
 
@@ -89,7 +90,7 @@ public class Caller {
                     break;
                 case ADD:
                     if (leftObject instanceof String && rightObject instanceof String) {
-                        String newString = (String) leftObject + (String) rightObject;
+                        String newString = leftObject + rightObject;
                         resultNode = builder.create(NodeType.STRING).setData(newString).commit();
                     } else if (leftObject instanceof Double && rightObject instanceof Double) {
                         Double newString = (Double) leftObject + (Double) rightObject;

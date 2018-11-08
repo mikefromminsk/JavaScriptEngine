@@ -1,3 +1,3 @@
 var node = 'hello';
 
-var test = node.reverse().trim() == "olleh";
+var test = node.reverse() == "olleh";

@@ -31,7 +31,7 @@ public class Node implements InfinityArrayCell {
     public ArrayList<Object> param;
     public ArrayList<Object> next;
     public ArrayList<Object> cell;
-    public ArrayList<Object> properties;
+    public ArrayList<Object> prop;
     // after add new link you should add it to listLinks and parse function
 
     @Override
@@ -87,9 +87,9 @@ public class Node implements InfinityArrayCell {
         if (next != null)
             for (Object item : next)
                 linkListener.get(LinkType.NEXT, item, false);
-        if (properties != null)
-            for (Object item : properties)
-                linkListener.get(LinkType.PROTOTYPE, item, false);
+        if (prop != null)
+            for (Object item : prop)
+                linkListener.get(LinkType.PROP, item, false);
         if (cell != null)
             for (Object item : cell)
                 linkListener.get(LinkType.CELL, item, false);

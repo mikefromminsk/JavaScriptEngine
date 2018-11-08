@@ -19,17 +19,19 @@ public class LinkType {
     private static final String WHILE_NAME = "while";
     public static final byte IF = 8;
     private static final String IF_NAME = "if";
-    public static final byte PROTOTYPE = 9;
+    public static final byte PROP = 9;
+    private static final String PROP_NAME = "prop";
+    public static final byte PROTOTYPE = 10;
     private static final String PROTOTYPE_NAME = "prototype";
-    public static final byte BODY = 10;
+    public static final byte BODY = 11;
     private static final String BODY_NAME = "body";
-    public static final byte LOCAL = 11;
+    public static final byte LOCAL = 12;
     private static final String LOCAL_NAME = "local";
-    public static final byte PARAM = 12;
+    public static final byte PARAM = 13;
     private static final String PARAM_NAME = "param";
-    public static final byte NEXT = 13;
+    public static final byte NEXT = 14;
     private static final String NEXT_NAME = "next";
-    public static final byte CELL = 14;
+    public static final byte CELL = 15;
     private static final String CELL_NAME = "cell";
 
     public static String toString(byte linkType) {
@@ -43,6 +45,7 @@ public class LinkType {
             case EXIT: return EXIT_NAME;
             case WHILE: return WHILE_NAME;
             case IF: return IF_NAME;
+            case PROP: return PROP_NAME;
             case PROTOTYPE: return PROTOTYPE_NAME;
             case BODY: return BODY_NAME;
             case LOCAL: return LOCAL_NAME;
