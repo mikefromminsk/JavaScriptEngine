@@ -1,6 +1,8 @@
 function ssds(){
     var a = 0;
-    return a++;
+    for (i=0; i<10; i++)
+        a = a + 1;
+    return a;
 }
 
-var test = ssds() == 1;
+var test = ssds() == 10;
