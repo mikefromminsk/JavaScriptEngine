@@ -166,4 +166,21 @@ public class NodeStorage extends InfinityArray {
             return dataHashTree.get(title, Crc16.getHashBytes(title));
         return null;
     }
+
+    public Long put(byte[] title) {
+        if (title != null)
+            return dataHashTree.get(title, Crc16.getHashBytes(title));
+        return null;
+    }
+
+    public Node getObject(String key) {
+        long nodeId = keyValueStorage.get(key, Crc16.getHashBytes(key));
+        if (nodeId != Long.MAX_VALUE)
+            return get(nodeId);
+        return null;
+    }
+
+    public void putObject(String key, Node value) {
+        keyValueStorage.put(key, Crc16.getHashBytes(key), value.id);
+    }
 }

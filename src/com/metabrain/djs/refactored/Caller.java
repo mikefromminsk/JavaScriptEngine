@@ -19,6 +19,8 @@ public class Caller {
     public final static int GE = 8; // >=
     public final static int LT = 9; // <
     public final static int LE = 10; // <=
+    public final static int STRING_REVERCE = 11; // "abc".reverse() -> "cba"
+    public static final int STRING_TRIM = 12;// " abc ".trim() -> "abc"
     private static NodeBuilder builder = new NodeBuilder();
 
     static int fromTokenType(TokenType tokenType) {
@@ -57,21 +59,25 @@ public class Caller {
         return EQ;
     }
 
-    static Node trueValue = builder.create(NodeType.BOOL).setData("true").commit();
-    static Node falseValue = builder.create(NodeType.BOOL).setData("false").commit();
+    private static Node trueValue = builder.create(NodeType.BOOL).setData("true").commit();
+    private static Node falseValue = builder.create(NodeType.BOOL).setData("false").commit();
 
-    static void invoke(Node node, Node calledNodeId) {
+    static void invoke(Node node, Node thsNode) {
         builder.set(node);
 
+        Node ths = builder.getParamNode(0);
         Node left = builder.getParamNode(0);
         Node right = builder.getParamNode(1);
 
+        if (ths != null) ths = builder.set(ths).getValueOrSelf();
         if (left != null) left = builder.set(left).getValueOrSelf();
         if (right != null) right = builder.set(right).getValueOrSelf();
 
+        Object thsObject = null;
         Object leftObject = null;
         Object rightObject = null;
 
+        if (ths != null && ths.type < NodeType.VAR) thsObject = builder.set(ths).getData().getObject();
         if (left != null && left.type < NodeType.VAR) leftObject = builder.set(left).getData().getObject();
         if (right != null && right.type < NodeType.VAR) rightObject = builder.set(right).getData().getObject();
 
@@ -144,6 +150,17 @@ public class Caller {
                 case LE:
                     if (leftObject instanceof Double && rightObject instanceof Double) {
                         resultNode = ((Double) leftObject <= (Double) rightObject) ? trueValue : falseValue;
+                    }
+                    break;
+                case STRING_REVERCE:
+                    if (thsObject instanceof String) {
+                        String newString = new StringBuilder().append((String) thsObject).reverse().toString();
+                        resultNode = builder.create(NodeType.STRING).setData(newString).commit();
+                    }
+                    break;
+                case STRING_TRIM:
+                    if (thsObject instanceof String) {
+                        resultNode = builder.create(NodeType.STRING).setData(((String) thsObject).trim()).commit();
                     }
                     break;
             }

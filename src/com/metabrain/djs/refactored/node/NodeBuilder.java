@@ -588,4 +588,11 @@ public class NodeBuilder {
         return node;
     }
 
+    public Node getObject(String key) {
+        return storage.getObject(key);
+    }
+
+    public void putObject(String key, Node value) {
+        storage.putObject(key, value);
+    }
 }

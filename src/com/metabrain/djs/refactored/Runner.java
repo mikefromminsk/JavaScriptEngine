@@ -12,100 +12,106 @@ public class Runner {
     private final static boolean SET_VALUE_FROM_VALUE = false;
     private final static boolean SET_VALUE_FROM_RETURN = true;
 
-    private Long getDefaultPrototype(Byte nodeType) {
-        return null;
+    private Node defaultPrototypes = builder.get(0L).getObject("defaultPrototypes");
+
+    private Node getDefaultPrototype(Byte nodeType) {
+        if (defaultPrototypes == null){
+            Node root = builder.get(0L).getNode();
+            NodeBuilder prototypeBuilder = new NodeBuilder();
+            Node stringPrototype = prototypeBuilder.create()
+                    .addLocal(builder.create(NodeType.NATIVE_FUNCTION).setFunctionId(Caller.STRING_REVERCE).commit())
+                    .addLocal(builder.create(NodeType.NATIVE_FUNCTION).setFunctionId(Caller.STRING_TRIM).commit())
+                    .commit();
+            builder.set(root).putObject(NodeType.STRING_NAME, stringPrototype);
+        }
+        return builder.set(defaultPrototypes).findLocal(NodeType.toString(nodeType));
     }
 
-    private Node propCalledNodeId = null;
+    private Node propCalledNode = null;
 
     private Node getProps(Node node) {
+        if (builder.set(node).getSource() != null && builder.set(node).getPropertiesCount() > 0)
+            node = builder.set(node).getSourceNode();
+        boolean startFromThis = builder.set(node).getSource() == null && builder.set(node).getPropertiesCount() > 0;
+        if (startFromThis && propCalledNode != null)
+            node = propCalledNode;
+
+        if (builder.set(node).getPropertiesCount() > 0)
+            propCalledNode = node;
+
+        for (int i = 0; i < builder.set(node).getPropertiesCount(); i++) {
+            Node propNode = builder.set(node).getPropertyNode(i);
+            run(propNode);
+            // TODO check getValue or getValueOrSelf
+            Node propNameNode = builder.set(propNode).getValueNode();
+            byte propType = propNameNode.type;
+            if (propType == NodeType.STRING) {
+                String propName = (String) builder.set(propNameNode).getData().getObject();
+                // TODO delete duplicate with first call in this func
+                Byte nodeType = null;
+                if (builder.set(node).getValue() != null)
+                    nodeType = builder.set(node).getValueNode().type;
+                Node prototypeNode = builder.set(node).getPrototypeNode();
+                if ("prototype".equals(propName)) {
+                    if (prototypeNode != null) {
+                        node = prototypeNode;
+                    } else {// proto by node type
+                        if (nodeType != null)
+                            prototypeNode = getDefaultPrototype(nodeType);
+                        if (prototypeNode != null) {
+                            node = prototypeNode;
+                        } else { // create proto
+                            prototypeNode = builder.create().commit();
+                            builder.set(node).setPrototype(prototypeNode).commit();
+                            node = prototypeNode;
+                        }
+                    }
+                    continue;
+                } else { // otherwise
+                    Node findPropNode = null;
+                    while (prototypeNode != null && findPropNode == null) {
+                        findPropNode = builder.set(prototypeNode).findLocal(propName);
+                        if (findPropNode == null)
+                            prototypeNode = builder.set(prototypeNode).getPrototypeNode();
+                    }
+                    if (findPropNode != null) {
+                        propCalledNode = node;
+                        node = findPropNode;
+                        continue;
+                    } else {
+                        if (nodeType != null)
+                            prototypeNode = getDefaultPrototype(nodeType);
+                        if (prototypeNode != null) {
+                            findPropNode = builder.set(prototypeNode).findLocal(propName);
+                            if (findPropNode != null) {
+                                node = findPropNode;
+                                continue;
+                            }
+                        } else {
+                            Node varPrototype = getDefaultPrototype(NodeType.VAR);
+                            findPropNode = builder.set(varPrototype).findLocal(propName);
+                            if (findPropNode != null) {
+                                node = findPropNode;
+                                continue;
+                            }
+                        }
+                    }
+                }
+                propCalledNode = node;
+                Node newField = builder.create().commit();
+                Node titleData = builder.create(NodeType.STRING).setData(propName).commit();
+                builder.set(newField).setTitle(titleData).commit();
+                builder.set(node).addLocal(newField).commit();
+                node = newField;
+            } else if (propType == NodeType.NUMBER) {
+                int index = (int) builder.set(propNameNode).getData().getObject();
+                propCalledNode = node;
+                node = builder.set(node).getCellNode(index);
+            }
+        }
         return node;
     }
 
-    /*
-    Node node = new Node(nodeId);
-    ArrayList<Long> props = node.getProperties();
-    if (node.getSource() != null && props.size() > 0)
-        nodeId = node.getSource();
-    boolean startFromThis = node.getSource() == null && props.size() > 0;
-    if (startFromThis && propCalledNodeId != null)
-        nodeId = propCalledNodeId;
-
-    if (props.size() > 0)
-        propCalledNodeId = nodeId;
-
-    for (Long propNodeId : props) {
-        run(propNodeId);
-        // TODO check getValue or getValueOrSelf
-        Node propNameNode = new Node(new Node(propNodeId).getValueOrSelfId());
-        // TODO delete toString
-        String propName = propNameNode.getData().toString();
-        byte propType = propNameNode.getType();
-        if (propType == NodeType.STRING) {
-            // TODO delete duplicate with first call in this func
-            node = new Node(nodeId);
-            Byte nodeType = null;
-            if (node.getValue() != null)
-                nodeType = new Node(node.getValue()).getType();
-            Long prototypeNodeId = node.getPrototype();
-            if (propName.equals("prototype")) {
-                if (prototypeNodeId != null) {
-                    nodeId = prototypeNodeId;
-                } else {// proto by node type
-                    if (prototypeNodeId == null && nodeType == null)
-                        prototypeNodeId = getDefaultPrototype(nodeType);
-                    if (prototypeNodeId != null) {
-                        nodeId = prototypeNodeId;
-                    } else { // create proto
-                        prototypeNodeId = new Node().commit().getId();
-                        node.setPrototype(prototypeNodeId).commit();
-                        nodeId = prototypeNodeId;
-                    }
-                }
-                continue;
-            } else { // otherwise
-                Long findPropNodeId = null;
-                while (prototypeNodeId != null && findPropNodeId == null) {
-                    findPropNodeId = new Node(prototypeNodeId).findLocal(propName).getId();
-                    if (findPropNodeId == null)
-                        prototypeNodeId = new Node(prototypeNodeId).getPrototype();
-                }
-                if (findPropNodeId != null) {
-                    propCalledNodeId = nodeId;
-                    nodeId = findPropNodeId;
-                    continue;
-                } else {
-                    if (nodeType != null)
-                        prototypeNodeId = getDefaultPrototype(nodeType);
-                    if (prototypeNodeId != null) {
-                        // TODO NullPointerException
-                        findPropNodeId = new Node(prototypeNodeId).findLocal(propName).getId();
-                        if (findPropNodeId != null) {
-                            nodeId = findPropNodeId;
-                            continue;
-                        }
-                    } else {
-                        Long varPrototype = getDefaultPrototype(NodeType.VAR);
-                        findPropNodeId = new Node(varPrototype).findLocal(propName).getId();
-                        if (findPropNodeId != null) {
-                            nodeId = findPropNodeId;
-                            continue;
-                        }
-                    }
-                }
-            }
-            propCalledNodeId = nodeId;
-            nodeId = new Node(nodeId).makeLocal(propName).getId();
-        } else if (propType == NodeType.NUMBER) {
-            propCalledNodeId = nodeId;
-            int index = Integer.valueOf(propName);
-            nodeId = new Node(nodeId).getCell().get(index);
-        }
-    }
-    return nodeId;
-}
-
-*/
     private void cloneObject(Node sourceNode, Node templateNode) {
         // TODO delete setType
         /*new Node(sourceNodeId).setType(NodeType.OBJECT).commit();
@@ -161,9 +167,9 @@ public class Runner {
         if (value == null) {
             builder.set(source).setValue(value).commit();
         } else if (value.type == NodeType.VAR) {
-            propCalledNodeId = ths;
+            propCalledNode = ths;
             value = getProps(value);
-            ths = propCalledNodeId;
+            ths = propCalledNode;
             run(value, ths);
             if (value.type == NodeType.OBJECT) {
                 cloneObject(source, value);
@@ -219,9 +225,9 @@ public class Runner {
         }
 
         if (builder.set(node).getSource() != null) {
-            propCalledNodeId = calledNodeId;
+            propCalledNode = calledNodeId;
             Node sourceNode = getProps(builder.set(node).getSourceNode());
-            Node calledObjectFromSource = propCalledNodeId;
+            Node calledObjectFromSource = propCalledNode;
             Node setNode = builder.set(node).getSetNode();
             if (setNode != null) {
                 setValue(sourceNode, setNode, SET_VALUE_FROM_VALUE, calledObjectFromSource);
