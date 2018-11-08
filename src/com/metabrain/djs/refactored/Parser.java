@@ -138,6 +138,7 @@ public class Parser {
             }
 
 
+
             if (statement instanceof Block) {
                 Block block = (Block) statement;
                 Node blockNode = builder.create().commit();
@@ -256,6 +257,12 @@ public class Parser {
                 return builder.set(callNode)
                         .setSource(sourceFunc)
                         .commit();
+            }
+
+            if (statement instanceof AccessNode) {
+                AccessNode propertyNode = (AccessNode) statement;
+
+                String key = "";
             }
 
             if (statement instanceof LiteralNode) {
