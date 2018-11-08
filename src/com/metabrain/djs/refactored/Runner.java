@@ -244,32 +244,32 @@ public class Runner {
         }
 
         if (builder.set(node).getIf() != null && builder.set(node).getTrue() != null) {
-            Node ifNodeValue = builder.set(node).getIfNode();
-            run(ifNodeValue, calledNodeId);
-            ifNodeValue = builder.set(ifNodeValue).getValueOrSelf();
-            DataStream dataStream = builder.set(ifNodeValue).getData();
-            if (ifNodeValue.type == NodeType.BOOL && (Boolean) dataStream.getObject())
+            Node ifNode = builder.set(node).getIfNode();
+            run(ifNode, calledNodeId);
+            Node ifNodeData = builder.set(ifNode).getValueNode();
+            DataStream dataStream = builder.set(ifNodeData).getData();
+            if (ifNode.type == NodeType.BOOL && (Boolean) dataStream.getObject())
                 run(builder.set(node).getTrueNode(), calledNodeId);
             else if (builder.set(node).getElse() != null)
-                run(builder.set(node).getTrueNode(), calledNodeId);
+                run(builder.set(node).getElseNode(), calledNodeId);
         }
 
 
         if (builder.set(node).getWhile() != null && builder.set(node).getIf() != null) {
-            Node ifNodeValue = builder.set(node).getIfNode();
-            run(ifNodeValue, calledNodeId);
-            ifNodeValue = builder.set(ifNodeValue).getValueOrSelf();
-            DataStream dataStream = builder.set(ifNodeValue).getData();
-
-            run(builder.set(node).getIfNode(), calledNodeId);
-            while (ifNodeValue.type == NodeType.BOOL && (Boolean) dataStream.getObject()) {
+            Node ifNode = builder.set(node).getIfNode();
+            run(ifNode, calledNodeId);
+            Node ifNodeData = builder.set(ifNode).getValueNode();
+            DataStream dataStream = builder.set(ifNodeData).getData();
+            while (ifNodeData.type == NodeType.BOOL && (Boolean) dataStream.getObject()) {
                 run(builder.set(node).getWhileNode(), calledNodeId);
                 if (exitNode != null) {
                     if (exitNode.equals(node))
                         exitNode = null;
                     break;
                 }
-                run(builder.set(node).getIfNode(), calledNodeId);
+                run(ifNode, calledNodeId);
+                ifNodeData = builder.set(ifNode).getValueNode();
+                dataStream = builder.set(ifNodeData).getData();
             }
         }
 

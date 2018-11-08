@@ -8,13 +8,17 @@ import jdk.nashorn.internal.parser.TokenType;
 public class Caller {
 
     public final static int UNARY_MINUS = -1;
-    public final static int EQ = 0;
-    public final static int ADD = 1;
-    public final static int SUB = 2;
-    public final static int DIV = 3;
-    public final static int MUL = 4;
-    public final static int INC = 5;
-    public final static int DEC = 6;
+    public final static int EQ = 0; // ==
+    public final static int ADD = 1; // +
+    public final static int SUB = 2; // -
+    public final static int DIV = 3; // /
+    public final static int MUL = 4; // *
+    public final static int INC = 5; // +1
+    public final static int DEC = 6; // -1
+    public final static int GT = 7; // >
+    public final static int GE = 8; // >=
+    public final static int LT = 9; // <
+    public final static int LE = 10; // <=
     private static NodeBuilder builder = new NodeBuilder();
 
     static int fromTokenType(TokenType tokenType) {
@@ -41,6 +45,14 @@ public class Caller {
                 return INC;
             case DECPOSTFIX:
                 return DEC;
+            case GT:
+                return GT;
+            case GE:
+                return GE;
+            case LT:
+                return LT;
+            case LE:
+                return LE;
         }
         return EQ;
     }
@@ -98,20 +110,40 @@ public class Caller {
                     break;
                 case UNARY_MINUS:
                     if (leftObject instanceof Double) {
-                        Double newString =  - (Double) leftObject;
+                        Double newString = -(Double) leftObject;
                         resultNode = builder.create(NodeType.NUMBER).setData(newString).commit();
                     }
                     break;
                 case INC:
                     if (leftObject instanceof Double) {
-                        Double newString =  (Double) leftObject + 1;
+                        Double newString = (Double) leftObject + 1;
                         resultNode = builder.create(NodeType.NUMBER).setData(newString).commit();
                     }
                     break;
                 case DEC:
                     if (leftObject instanceof Double) {
-                        Double newString =  (Double) leftObject - 1;
+                        Double newString = (Double) leftObject - 1;
                         resultNode = builder.create(NodeType.NUMBER).setData(newString).commit();
+                    }
+                    break;
+                case GT:
+                    if (leftObject instanceof Double && rightObject instanceof Double) {
+                        resultNode = ((Double) leftObject > (Double) rightObject) ? trueValue : falseValue;
+                    }
+                    break;
+                case GE:
+                    if (leftObject instanceof Double && rightObject instanceof Double) {
+                        resultNode = ((Double) leftObject >= (Double) rightObject) ? trueValue : falseValue;
+                    }
+                    break;
+                case LT:
+                    if (leftObject instanceof Double && rightObject instanceof Double) {
+                        resultNode = ((Double) leftObject < (Double) rightObject) ? trueValue : falseValue;
+                    }
+                    break;
+                case LE:
+                    if (leftObject instanceof Double && rightObject instanceof Double) {
+                        resultNode = ((Double) leftObject <= (Double) rightObject) ? trueValue : falseValue;
                     }
                     break;
             }

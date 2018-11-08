@@ -46,33 +46,27 @@ public class Parser {
                 Node node = jsLine(module, varNode.getName());
                 if (varNode.getInit() != null) {
                     Node setLink = jsLine(node, varNode.getInit());
-                    node = builder.create()
-                            .setSource(node)
-                            .setSet(setLink)
-                            .commit();
+                    node = builder.create().setSource(node).setSet(setLink).commit();
                 }
                 return node;
             }
 
             if (statement instanceof ForNode) {
-                ForNode forNode = (ForNode) statement;
-                Node forInitNode = builder.create().commit();
-                builder.set(module).addLocal(forInitNode).commit(); // for find local function
+                ForNode forStatement = (ForNode) statement;
 
-                jsLine(forInitNode, forNode.getInit());
-                Node forTestNode = jsLine(forInitNode, forNode.getTest());
-                Node forModifyNode = jsLine(forInitNode, forNode.getModify());
-                Node forBodyNode = jsLine(forInitNode, forNode.getBody());
+                Node forNode = builder.create().commit();
+                Node initBlockNode = jsLine(forNode, forStatement.getInit());
+                builder.set(forNode).addNext(initBlockNode).commit();
 
-                forTestNode = builder.create()
-                        .setWhile(forBodyNode)
-                        .setIf(forTestNode)
-                        .commit();
+                Node forBodyNode = jsLine(forNode, forStatement.getBody());
+                Node forTestNode = jsLine(forNode, forStatement.getTest());
+                Node forStartNode = builder.create().setWhile(forBodyNode).setIf(forTestNode).commit();
 
-                builder.set(forInitNode).addNext(forTestNode).commit();
+                Node forModifyNode = jsLine(forNode, forStatement.getModify());
                 builder.set(forBodyNode).addNext(forModifyNode).commit();
-                builder.set(module).removeLocal(forInitNode).commit();  // for find local function
-                return forInitNode;
+
+                builder.set(forNode).addNext(forStartNode).commit();
+                return forNode;
             }
 
             // i++ in for
