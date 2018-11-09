@@ -90,7 +90,7 @@ public class Caller {
                     break;
                 case ADD:
                     if (leftObject instanceof String && rightObject instanceof String) {
-                        String newString = leftObject + rightObject;
+                        String newString = leftObject + (String) rightObject;
                         resultNode = builder.create(NodeType.STRING).setData(newString).commit();
                     } else if (leftObject instanceof Double && rightObject instanceof Double) {
                         Double newString = (Double) leftObject + (Double) rightObject;

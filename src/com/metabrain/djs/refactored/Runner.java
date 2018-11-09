@@ -47,7 +47,7 @@ public class Runner {
         if (startFromThis && propCalledNode != null)
             startNode = propCalledNode;
 
-        if (builder.set(node).getPropertiesCount() > 0)
+        if (builder.set(startNode).getPropertiesCount() > 0)
             propCalledNode = node;
 
         for (int i = 0; i < builder.set(startNode).getPropertiesCount(); i++) {
