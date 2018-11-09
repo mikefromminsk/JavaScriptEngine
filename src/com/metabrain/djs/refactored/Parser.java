@@ -228,12 +228,10 @@ public class Parser {
 
             if (statement instanceof ObjectNode) {
                 ObjectNode objectNode = (ObjectNode) statement;
-                Node obj = builder.create().commit();
-                builder.set(module).addLocal(obj).commit(); // TODO commit ?
-                for (PropertyNode item : objectNode.getElements())
-                    builder.set(obj).addProperty(jsLine(obj, item)); // TODO add 3th param to jsLine $add_to_local_path
-                builder.set(module).removeLocal(obj).commit(); // TODO commit ?
-                return builder.set(obj).commit();
+                Node obj = builder.create(NodeType.OBJECT).commit();
+                for (PropertyNode property : objectNode.getElements())
+                    jsLine(obj, property);
+                return obj;
             }
 
             if (statement instanceof PropertyNode) {
@@ -242,6 +240,10 @@ public class Parser {
                 if (propertyNode.getKey() instanceof LiteralNode) {
                     LiteralNode literalNode = (LiteralNode) propertyNode.getKey();
                     key = literalNode.getString();
+                }
+                if (propertyNode.getKey() instanceof IdentNode) {
+                    IdentNode identNode = (IdentNode) propertyNode.getKey();
+                    key = identNode.getName();
                 }
                 if (propertyNode.getValue() instanceof FunctionCall) {
                     Node body = jsLine(module, propertyNode.getValue());

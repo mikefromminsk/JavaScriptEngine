@@ -119,8 +119,9 @@ public class NodeStorage extends InfinityArray {
                     nodeMetaCell.type = node.type;
                     nodeMetaCell.length = 0;
                     char[] buffer = new char[MAX_STORAGE_DATA_IN_DB];
-                    byte[] bytes;
+                    byte[] bytes = null;
                     int readiedBytes;
+                    File file = null;
                     while ((readiedBytes = in.read(buffer)) != -1) {
                         bytes = Bytes.fromCharArray(Arrays.copyOfRange(buffer, 0, readiedBytes));
                         hash = Crc16.getHash(hash, bytes);
@@ -129,22 +130,35 @@ public class NodeStorage extends InfinityArray {
                             hashKey = bytes;
                             if (readiedBytes == MAX_STORAGE_DATA_IN_DB) {
                                 nodeMetaCell.start = random.nextLong();
-                                File file = DiskManager.getInstance().getFileById(nodeMetaCell.start);
+                                file = DiskManager.getInstance().getFileById(nodeMetaCell.start);
                                 if (!file.exists())
                                     file.createNewFile();
                                 outStream = new FileOutputStream(file, false);
                                 outStream.write(bytes);
-                            } else {
-                                nodeMetaCell.start = dataStorage.add(bytes);
                             }
                         } else {
                             outStream.write(bytes);
                         }
                     }
-                    node.id = meta.add(nodeMetaCell);
-                    node.data = new DataStream(nodeMetaCell.type, nodeMetaCell.start, nodeMetaCell.length);
-                    node.externalData = null;
-                    dataHashTree.put(hashKey, Crc16.hashToBytes(hash), node.id);
+                    if (outStream != null)
+                        outStream.close();
+                    long prevNodeId = dataHashTree.get(hashKey, Crc16.hashToBytes(hash));
+                    if (prevNodeId == Long.MAX_VALUE) {
+                        if (nodeMetaCell.length < MAX_STORAGE_DATA_IN_DB) {
+                            nodeMetaCell.start = dataStorage.add(bytes);
+                        }
+                        node.id = meta.add(nodeMetaCell);
+                        node.data = new DataStream(nodeMetaCell.type, nodeMetaCell.start, nodeMetaCell.length);
+                        node.externalData = null;
+                        dataHashTree.put(hashKey, Crc16.hashToBytes(hash), node.id);
+                    }else{
+                        if (nodeMetaCell.length >= MAX_STORAGE_DATA_IN_DB)
+                            file.delete(); // delete read file buffer
+                        nodeMetaCell = (NodeMetaCell) meta.get(prevNodeId, nodeMetaCell);
+                        node.id = prevNodeId;
+                        node.data = new DataStream(nodeMetaCell.type, nodeMetaCell.start, nodeMetaCell.length);
+                        node.externalData = null;
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -162,6 +176,9 @@ public class NodeStorage extends InfinityArray {
     }
 
     public Long getDataId(byte[] title) {
+        if (Arrays.equals(title, "bb".getBytes())) {
+            int i = 0;
+        }
         if (title != null)
             return dataHashTree.get(title, Crc16.getHashBytes(title));
         return null;

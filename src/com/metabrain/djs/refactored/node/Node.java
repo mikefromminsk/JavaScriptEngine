@@ -53,12 +53,13 @@ public class Node implements InfinityArrayCell {
     public void listLinks(NodeLinkListener linkListener) {
         if (linkListener == null)
             return;
+        // sequences for well see in Formatter
+        if (title != null)
+            linkListener.get(LinkType.TITLE, title, true);
         if (value != null)
             linkListener.get(LinkType.VALUE, value, true);
         if (source != null)
             linkListener.get(LinkType.SOURCE, source, true);
-        if (title != null)
-            linkListener.get(LinkType.TITLE, title, true);
         if (set != null)
             linkListener.get(LinkType.SET, set, true);
         if (_true != null)

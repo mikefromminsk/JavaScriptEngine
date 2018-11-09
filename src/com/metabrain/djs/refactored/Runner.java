@@ -79,7 +79,7 @@ public class Runner {
                     }
                     continue;
                 } else { // otherwise
-                    Node findPropNode = null;
+                    Node findPropNode = builder.set(node).findLocal(propName);
                     while (prototypeNode != null && findPropNode == null) {
                         findPropNode = builder.set(prototypeNode).findLocal(propName);
                         if (findPropNode == null)
@@ -100,7 +100,8 @@ public class Runner {
                             }
                         } else {
                             Node varPrototype = getDefaultPrototype(NodeType.VAR);
-                            findPropNode = builder.set(varPrototype).findLocal(propName);
+                            if (varPrototype != null)
+                                findPropNode = builder.set(varPrototype).findLocal(propName);
                             if (findPropNode != null) {
                                 node = findPropNode;
                                 continue;
@@ -125,40 +126,36 @@ public class Runner {
 
     private void cloneObject(Node sourceNode, Node templateNode) {
         // TODO delete setType
-        /*new Node(sourceNodeId).setType(NodeType.OBJECT).commit();
-        run(templateNodeId, sourceNodeId);
-        Node templateNode = new Node(templateNodeId);
+        sourceNode.type = NodeType.OBJECT;
+        builder.set(sourceNode).commit();
+        run(templateNode, sourceNode);
 
-        if (templateNode.getNext().size() > 0) {
+        if (builder.set(templateNode).getNextCount() > 0) {
             // TODO delete duplicate
-            run(templateNodeId, sourceNodeId);
+            //run(templateNodeId, sourceNodeId);
         } else {
-            for (Long localNodeId : templateNode.getLocal()) {
-                Node localNode = new Node(localNodeId);
-                if (localNode.getTitle() != null) {
-                    run(localNodeId, sourceNodeId);
-                    Long localValue = new Node(localNodeId).getValue();
+            for (int i = 0; i < builder.set(templateNode).getLocalCount(); i++) {
+                Node localNode = builder.set(templateNode).getLocalNode(i);
+                if (builder.set(localNode).getTitle() != null) {
+                    if (builder.set(localNode).getSource() != null)
+                        run(localNode, sourceNode);
+                    Node localValue = builder.set(localNode).getValueNode();
                     if (localValue != null) {
-                        new Node(sourceNodeId)
-                                .addLocal(new Node()
-                                        .setTitle(new Node(localNode.getTitle()).getData().toString())
-                                        .setValue(localValue)
-                                        .commit().getId()
-                                ).commit();
+                        Node localTitle = builder.set(localNode).getTitleNode();
+                        Node newLocalInSource = builder.create()
+                                .setTitle(localTitle)
+                                .setValue(localValue)
+                                .commit();
+                        builder.set(sourceNode)
+                                .addLocal(newLocalInSource)
+                                .commit();
                     }
-                } else if (localNode.getValue() != null) {
-                    new Node(sourceNodeId)
-                            .addLocal(new Node()
-                                    .setTitle(new Node(localNode.getTitle()).getData().toString())
-                                    .setValue(localNode.getValue())
-                                    .commit().getId()
-                            ).commit();
                 }
             }
         }
-        new Node(sourceNodeId)
-                .setPrototype(templateNodeId)
-                .commit();*/
+        builder.set(sourceNode)
+                .setPrototype(templateNode)
+                .commit();
     }
 /*
     // TODO add test to cloneArray testing
