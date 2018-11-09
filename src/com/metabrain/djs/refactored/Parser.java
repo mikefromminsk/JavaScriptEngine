@@ -203,6 +203,31 @@ public class Parser {
                 return builder.set(functionNode).commit();
             }
 
+            if (statement instanceof PropertyNode) {
+                PropertyNode propertyNode = (PropertyNode) statement;
+                String key = "";
+                if (propertyNode.getKey() instanceof LiteralNode) {
+                    LiteralNode literalNode = (LiteralNode) propertyNode.getKey();
+                    key = literalNode.getString();
+                }
+                if (propertyNode.getKey() instanceof IdentNode) {
+                    IdentNode identNode = (IdentNode) propertyNode.getKey();
+                    key = identNode.getName();
+                }
+                if (propertyNode.getValue() instanceof FunctionNode) {
+                    Node functionBody = builder.create(NodeType.FUNCTION).commit();
+                    Node body = jsLine(functionBody, propertyNode.getValue());
+                    Node titleData = builder.create(NodeType.STRING).setData(key).commit();
+                    Node functionHead = builder.create().setTitle(titleData).setBody(body).commit();
+                    return builder.set(module).addLocal(functionHead).commit();
+                } else {
+                    Node value = jsLine(module, propertyNode.getValue());
+                    Node titleData = builder.create(NodeType.STRING).setData(key).commit();
+                    builder.set(value).setTitle(titleData).commit();
+                    return builder.set(module).addLocal(value).commit();
+                }
+            }
+
             if (statement instanceof ReturnNode) {
                 ReturnNode returnNode = (ReturnNode) statement;
                 Node setNode = jsLine(module, returnNode.getExpression());
@@ -234,35 +259,6 @@ public class Parser {
                 return obj;
             }
 
-            if (statement instanceof PropertyNode) {
-                PropertyNode propertyNode = (PropertyNode) statement;
-                String key = "";
-                if (propertyNode.getKey() instanceof LiteralNode) {
-                    LiteralNode literalNode = (LiteralNode) propertyNode.getKey();
-                    key = literalNode.getString();
-                }
-                if (propertyNode.getKey() instanceof IdentNode) {
-                    IdentNode identNode = (IdentNode) propertyNode.getKey();
-                    key = identNode.getName();
-                }
-                if (propertyNode.getValue() instanceof FunctionCall) {
-                    Node body = jsLine(module, propertyNode.getValue());
-                    Node titleData = builder.create(NodeType.STRING).setData(key).commit();
-                    return builder.set(module)
-                            .addLocal(builder.create()
-                                    .setTitle(titleData)
-                                    .setBody(body)
-                                    .getId()
-                            ).commit();
-                } else {
-                    Node value = jsLine(module, propertyNode.getValue());
-                    Node titleData = builder.create(NodeType.STRING).setData(key).commit();
-                    builder.set(value).setTitle(titleData).commit();
-                    return builder.set(module)
-                            .addLocal(value)
-                            .commit();
-                }
-            }
 
 
             if (statement instanceof CallNode) { // TODO NewExpression
