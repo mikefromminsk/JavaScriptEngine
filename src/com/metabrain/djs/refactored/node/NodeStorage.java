@@ -176,9 +176,6 @@ public class NodeStorage extends InfinityArray {
     }
 
     public Long getDataId(byte[] title) {
-        if (Arrays.equals(title, "bb".getBytes())) {
-            int i = 0;
-        }
         if (title != null)
             return dataHashTree.get(title, Crc16.getHashBytes(title));
         return null;

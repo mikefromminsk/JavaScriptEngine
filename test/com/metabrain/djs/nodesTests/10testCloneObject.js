@@ -1,4 +1,4 @@
-var a = {bb: 1, ccc: 2};
-var d = a.bb;
+var a = {b: 1, ccc: 2};
+var b = a.b;
 
-var test = d == 1;
+var test = b == 1;
