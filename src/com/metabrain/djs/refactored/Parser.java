@@ -151,8 +151,12 @@ public class Parser {
                 Node base;
 
                 if (index.getBase() instanceof IdentNode) {
-                    base = jsLine(module, index.getBase());
-                    base = builder.create().setSource(base).commit();
+                    if ("this".equals(((IdentNode) index.getBase()).getName()))
+                        base = builder.create().commit();
+                    else {
+                        base = jsLine(module, index.getBase());
+                        base = builder.create().setSource(base).commit();
+                    }
                 } else
                     base = jsLine(module, index.getBase());
                 Node propertyNode = builder.create(NodeType.STRING).setData(index.getProperty()).commit();
@@ -258,7 +262,6 @@ public class Parser {
                     jsLine(obj, property);
                 return obj;
             }
-
 
 
             if (statement instanceof CallNode) { // TODO NewExpression
