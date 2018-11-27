@@ -113,4 +113,8 @@ public class Formatter {
         toJsonRecursive(data, 15, node);
         return json.toJson(data);
     }
+
+    public static Map<String, Map<String, Object>> fromJson(String body) {
+        return null;
+    }
 }

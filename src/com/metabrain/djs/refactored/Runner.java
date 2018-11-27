@@ -6,7 +6,7 @@ import com.metabrain.djs.refactored.node.Node;
 import com.metabrain.djs.refactored.node.NodeBuilder;
 import com.metabrain.djs.refactored.node.NodeType;
 
-public class Runner implements Runnable{
+public class Runner{
 
     private NodeBuilder builder = new NodeBuilder();
     private final static boolean SET_VALUE_FROM_VALUE = false;
@@ -289,10 +289,5 @@ public class Runner implements Runnable{
 
         if (builder.set(node).getExit() != null)
             exitNode = builder.set(node).getExitNode();
-    }
-
-    @Override
-    public void run() {
-
     }
 }
