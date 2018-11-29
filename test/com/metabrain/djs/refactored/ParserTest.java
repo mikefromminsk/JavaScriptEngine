@@ -11,7 +11,7 @@ class ParserTest {
 
     @Test
     void parse() throws IOException {
-        File file = new File("test/res/parse/JsParserScript.js");
+        File file = new File("test_res/parse/JsParserScript.js");
         String scriptStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
         new Parser().parse(scriptStr);
     }

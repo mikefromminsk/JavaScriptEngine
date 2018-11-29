@@ -25,7 +25,7 @@ class RunnerTest {
         Runner runThread = new Runner();
         Node module = null;
         try {
-            File nodesTestsDir = new File("test/res/run/");
+            File nodesTestsDir = new File("test_res/run/");
             File[] tests = nodesTestsDir.listFiles();
             Parser parser = new Parser();
             if (tests != null) {
