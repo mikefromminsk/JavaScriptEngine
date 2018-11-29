@@ -36,7 +36,7 @@ class NodeBuilderTest {
 
         try {
             Node fileNodeId = builder.create(NodeType.STRING)
-                    .setData(new FileInputStream("test/com/metabrain/djs/res/data_stream/testData.txt"))
+                    .setData(new FileInputStream("test/res/data_stream/testData.txt"))
                     .commit();
             DataStream dataStream = builder.set(fileNodeId).getData();
 
