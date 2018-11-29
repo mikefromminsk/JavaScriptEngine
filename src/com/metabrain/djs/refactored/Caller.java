@@ -61,8 +61,8 @@ public class Caller {
         return EQ;
     }
 
-    private static Node trueValue = builder.create(NodeType.BOOL).setData("true").commit();
-    private static Node falseValue = builder.create(NodeType.BOOL).setData("false").commit();
+    private static Node trueValue = builder.create(NodeType.BOOL).setData(Formatter.TRUE).commit();
+    private static Node falseValue = builder.create(NodeType.BOOL).setData(Formatter.FALSE).commit();
 
     static void invoke(Node node, Node ths) {
         builder.set(node);

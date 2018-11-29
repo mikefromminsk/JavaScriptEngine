@@ -1,6 +1,7 @@
 package com.metabrain.djs.refactored.node;
 
 public class  NodeType {
+    // todo change String to char[]
     public static final byte STRING = -3;
     public static final String STRING_NAME = "string";
     public static final byte NUMBER = -2;
@@ -33,5 +34,20 @@ public class  NodeType {
             case FUNCTION: return FUNCTION_NAME;
         }
         return null;
+    }
+
+    public static byte fromString(String str) {
+        switch (str){
+            case STRING_NAME: return STRING;
+            case NUMBER_NAME: return NUMBER;
+            case BOOL_NAME: return BOOL;
+            case VAR_NAME: return VAR;
+            case ARRAY_NAME: return ARRAY;
+            case OBJECT_NAME: return OBJECT;
+            case NATIVE_FUNCTION_NAME: return NATIVE_FUNCTION;
+            case THREAD_NAME: return THREAD;
+            case FUNCTION_NAME: return FUNCTION;
+        }
+        return VAR;
     }
 }

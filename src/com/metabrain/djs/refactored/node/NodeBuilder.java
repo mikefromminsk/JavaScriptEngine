@@ -595,4 +595,57 @@ public class NodeBuilder {
     public void putObject(String key, Node value) {
         storage.putObject(key, value);
     }
+
+    public void setLink(byte linkType, Node linkValueNode) {
+        switch (linkType) {
+            case LinkType.VALUE:
+                setValue(linkValueNode);
+                break;
+            case LinkType.SOURCE:
+                setSource(linkValueNode);
+                break;
+            case LinkType.TITLE:
+                setTitle(linkValueNode);
+                break;
+            case LinkType.SET:
+                setSet(linkValueNode);
+                break;
+            case LinkType.TRUE:
+                setTrue(linkValueNode);
+                break;
+            case LinkType.ELSE:
+                setElse(linkValueNode);
+                break;
+            case LinkType.EXIT:
+                setExit(linkValueNode);
+                break;
+            case LinkType.WHILE:
+                setWhile(linkValueNode);
+                break;
+            case LinkType.IF:
+                setIf(linkValueNode);
+                break;
+            case LinkType.PROP:
+                addProperty(linkValueNode);
+                break;
+            case LinkType.PROTOTYPE:
+                setPrototype(linkValueNode);
+                break;
+            case LinkType.BODY:
+                setBody(linkValueNode);
+                break;
+            case LinkType.LOCAL:
+                addLocal(linkValueNode);
+                break;
+            case LinkType.PARAM:
+                addParam(linkValueNode);
+                break;
+            case LinkType.NEXT:
+                addNext(linkValueNode);
+                break;
+            case LinkType.CELL:
+                addCell(linkValueNode);
+                break;
+        }
+    }
 }

@@ -43,15 +43,17 @@ import java.util.*;
 * */
 public class Formatter {
 
-    static NodeBuilder builder = new NodeBuilder();
-    static final String NODE_PREFIX = "n";
-    static final String TYPE_PREFIX = "type";
-    static final String DATA_PREFIX = "data";
-    static final String FUNCTION_ID_PREFIX = "function_id";
-    static final String STRING_PREFIX = "!";
-    static final String LINK_PREFIX = "@";
+    public static final String NEW_NODE_PREFIX = "w";
+    public static final String NODE_PREFIX = "n";
+    public static final String TYPE_PREFIX = "type";
+    public static final String DATA_PREFIX = "data";
+    public static final String FUNCTION_ID_PREFIX = "function_id";
+    public static final String STRING_PREFIX = "!";
+    public static final String LINK_PREFIX = "@";
+    public static final String TRUE = "true";
+    public static final String FALSE = "false";
 
-    private static String dataSimplification(Node node) {
+    private static String dataSimplification(NodeBuilder builder, Node node) {
         DataStream dataStream = builder.set(node).getData();
         if (node.type == NodeType.STRING) {
             if (dataStream.length > NodeStorage.MAX_STORAGE_DATA_IN_DB)
@@ -63,7 +65,7 @@ public class Formatter {
         }
     }
 
-    public static void toJsonRecursive(Map<String, Map<String, Object>> data, int depth, Node node) {
+    public static void toJsonRecursive(NodeBuilder builder, Map<String, Map<String, Object>> data, int depth, Node node) {
         String nodeName = NODE_PREFIX + node.id;
         if (data.get(nodeName) != null) return;
 
@@ -74,7 +76,7 @@ public class Formatter {
             links.put(TYPE_PREFIX, NodeType.toString(node.type));
 
         if (node.type < NodeType.VAR)
-            links.put(DATA_PREFIX, dataSimplification(node));
+            links.put(DATA_PREFIX, dataSimplification(builder, node));
 
         if (node.type == NodeType.NATIVE_FUNCTION)
             links.put(FUNCTION_ID_PREFIX, node.functionId); // TODO Functions.toString
@@ -84,10 +86,10 @@ public class Formatter {
             String linkTypeStr = LinkType.toString(linkType);
             if (singleValue) {
                 if (linkNode.type < NodeType.VAR)
-                    links.put(linkTypeStr, dataSimplification(linkNode));
+                    links.put(linkTypeStr, dataSimplification(builder, linkNode));
                 else if (depth > 0){
                     links.put(linkTypeStr, NODE_PREFIX + linkNode.id);
-                    toJsonRecursive(data, depth - 1, linkNode);
+                    toJsonRecursive(builder, data, depth - 1, linkNode);
                 }
             } else {
                 Object linkObject = links.get(linkTypeStr);
@@ -96,10 +98,10 @@ public class Formatter {
                 ArrayList linkList = (ArrayList) linkObject;
 
                 if (linkNode.type < NodeType.VAR) // TODO exception
-                    linkList.add(dataSimplification(linkNode));
+                    linkList.add(dataSimplification(builder, linkNode));
                 else {
                     linkList.add(NODE_PREFIX + linkNode.id);
-                    toJsonRecursive(data, depth, linkNode);
+                    toJsonRecursive(builder, data, depth, linkNode);
                 }
             }
         });
@@ -110,11 +112,7 @@ public class Formatter {
 
     public static String toJson(Node node) {
         Map<String, Map<String, Object>> data = new LinkedHashMap<>();
-        toJsonRecursive(data, 15, node);
+        toJsonRecursive(new NodeBuilder(), data, 15, node);
         return json.toJson(data);
-    }
-
-    public static Map<String, Map<String, Object>> fromJson(String body) {
-        return null;
     }
 }

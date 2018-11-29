@@ -55,4 +55,26 @@ public class LinkType {
         }
         return null;
     }
+
+    public static byte fromString(String linkName) {
+        switch (linkName){
+            case VALUE_NAME: return VALUE;
+            case SOURCE_NAME: return SOURCE;
+            case TITLE_NAME: return TITLE;
+            case SET_NAME: return SET;
+            case TRUE_NAME: return TRUE;
+            case ELSE_NAME: return ELSE;
+            case EXIT_NAME: return EXIT;
+            case WHILE_NAME: return WHILE;
+            case IF_NAME: return IF;
+            case PROP_NAME: return PROP;
+            case PROTOTYPE_NAME: return PROTOTYPE;
+            case BODY_NAME: return BODY;
+            case LOCAL_NAME: return LOCAL;
+            case PARAM_NAME: return PARAM;
+            case NEXT_NAME: return NEXT;
+            case CELL_NAME: return CELL;
+        }
+        return VALUE;
+    }
 }

@@ -10,13 +10,9 @@ import java.nio.charset.StandardCharsets;
 class ParserTest {
 
     @Test
-    void parse() {
-        try {
-            File file = new File("test/com/metabrain/djs/parserTests/JsParserScript.js");
-            String scriptStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-            new Parser().parse(scriptStr);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    void parse() throws IOException {
+        File file = new File("test/com/metabrain/djs/res/parse/JsParserScript.js");
+        String scriptStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+        new Parser().parse(scriptStr);
     }
 }
