@@ -47,7 +47,7 @@ public class  NodeType {
             case NATIVE_FUNCTION_NAME: return NATIVE_FUNCTION;
             case THREAD_NAME: return THREAD;
             case FUNCTION_NAME: return FUNCTION;
+            default: return -1;
         }
-        return VAR;
     }
 }

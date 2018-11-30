@@ -32,6 +32,7 @@ public class Node implements InfinityArrayCell {
     public ArrayList<Object> next;
     public ArrayList<Object> cell;
     public ArrayList<Object> prop;
+    public ArrayList<Object> style;
     // after add new link you should add it to listLinks and parse function
 
     @Override

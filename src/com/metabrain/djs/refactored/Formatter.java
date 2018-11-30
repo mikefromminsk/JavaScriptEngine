@@ -107,12 +107,15 @@ public class Formatter {
         });
     }
 
-    // TODO delete Gson object
-    private static Gson json = new GsonBuilder().setPrettyPrinting().create();
-
-    public static String toJson(Node node) {
+    public static Map<String, Map<String, Object>> toMap(Node node) {
         Map<String, Map<String, Object>> data = new LinkedHashMap<>();
         toJsonRecursive(new NodeBuilder(), data, 15, node);
-        return json.toJson(data);
+        return data;
+    }
+
+    // TODO delete Gson object
+    private static Gson json = new GsonBuilder().setPrettyPrinting().create();
+    public static String toJson(Node node) {
+        return json.toJson(toMap(node));
     }
 }

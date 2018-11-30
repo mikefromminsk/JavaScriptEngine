@@ -206,11 +206,15 @@ public class Runner{
         }
     }
 
-    private Node exitNode = null;
+    public void run(Long nodeId) {
+        run(builder.get(nodeId).getNode());
+    }
 
     public void run(Node node) {
         run(node, null);
     }
+
+    private Node exitNode = null;
 
     private void run(Node node, Node calledNodeId) {
         for (int i = 0; i < builder.set(node).getNextCount(); i++) {

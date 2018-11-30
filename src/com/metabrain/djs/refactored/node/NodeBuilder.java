@@ -405,6 +405,10 @@ public class NodeBuilder {
         return getListNode(node.prop, index);
     }
 
+    public Node getStyleNode(int index) {
+        return getListNode(node.style, index);
+    }
+
     public NodeBuilder addLocal(Long id) {
         if (node.local == null)
             node.local = new ArrayList<>();
@@ -475,6 +479,13 @@ public class NodeBuilder {
         return this;
     }
 
+    public NodeBuilder addStyle(Node item) {
+        if (node.style == null)
+            node.style = new ArrayList<>();
+        node.style.add(item);
+        return this;
+    }
+
     public void removeFromListNode(ArrayList<Object> list, Long nodeId) {
         if (list != null && nodeId != null) {
             Object find = null;
@@ -537,6 +548,11 @@ public class NodeBuilder {
 
     public NodeBuilder removeProperty(Node item) {
         if (item != null) removeFromListNode(node.local, item.id);
+        return this;
+    }
+
+    public NodeBuilder removeStyle(Node item) {
+        if (item != null) removeFromListNode(node.style, item.id);
         return this;
     }
 
