@@ -355,25 +355,32 @@ public class NodeBuilder {
         return this;
     }
 
+    private int linksCount(ArrayList links) {
+        return links != null ? links.size() : 0;
+    }
 
     public int getLocalCount() {
-        return node.local != null ? node.local.size() : 0;
+        return linksCount(node.local);
     }
 
     public int getParamCount() {
-        return node.param != null ? node.param.size() : 0;
+        return linksCount(node.param);
     }
 
     public int getNextCount() {
-        return node.next != null ? node.next.size() : 0;
+        return linksCount(node.next);
     }
 
     public int getCellCount() {
-        return node.cell != null ? node.cell.size() : 0;
+        return linksCount(node.cell);
     }
 
     public int getPropertiesCount() {
-        return node.prop != null ? node.prop.size() : 0;
+        return linksCount(node.prop);
+    }
+
+    public int getStylesCount() {
+        return linksCount(node.style);
     }
 
     private Node getListNode(ArrayList<Object> list, int index) {
@@ -662,6 +669,29 @@ public class NodeBuilder {
             case LinkType.CELL:
                 addCell(linkValueNode);
                 break;
+            case LinkType.STYLE:
+                addStyle(linkValueNode);
+                break;
         }
+    }
+
+    public void clearLinks(Node node) {
+        node.value = null;
+        node.source = null;
+        node.title = null;
+        node.set = null;
+        node._true = null;
+        node._else = null;
+        node.exit = null;
+        node._while = null;
+        node._if = null;
+        node.prototype = null;
+        node.body = null;
+        node.local = null;
+        node.param = null;
+        node.next = null;
+        node.cell = null;
+        node.prop = null;
+        node.style = null;
     }
 }

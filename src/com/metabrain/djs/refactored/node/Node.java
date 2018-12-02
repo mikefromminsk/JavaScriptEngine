@@ -95,6 +95,9 @@ public class Node implements InfinityArrayCell {
         if (cell != null)
             for (Object item : cell)
                 linkListener.get(LinkType.CELL, item, false);
+        if (style != null)
+            for (Object item : style)
+                linkListener.get(LinkType.STYLE, item, false);
     }
 
     @Override
@@ -148,6 +151,9 @@ public class Node implements InfinityArrayCell {
                     break;
                 case LinkType.CELL:
                     cell.add(linkId);
+                    break;
+                case LinkType.STYLE:
+                    style.add(linkId);
                     break;
             }
         }
