@@ -77,9 +77,6 @@ public class Node implements InfinityArrayCell {
             linkListener.get(LinkType.PROTOTYPE, prototype, true);
         if (body != null)
             linkListener.get(LinkType.BODY, body, true);
-        // TODO change Formatter builder
-        /*if (functionId != null)
-            linkListener.get(LinkType.FUNCTION_ID, functionId, true);*/
         if (local != null)
             for (Object item : local)
                 linkListener.get(LinkType.LOCAL, item, false);
@@ -141,18 +138,28 @@ public class Node implements InfinityArrayCell {
                     body = linkId;
                     break;
                 case LinkType.LOCAL:
+                    if (local == null)
+                        local = new ArrayList<>();
                     local.add(linkId);
                     break;
                 case LinkType.PARAM:
+                    if (param == null)
+                        param = new ArrayList<>();
                     param.add(linkId);
                     break;
                 case LinkType.NEXT:
+                    if (next == null)
+                        next = new ArrayList<>();
                     next.add(linkId);
                     break;
                 case LinkType.CELL:
+                    if (cell == null)
+                        cell = new ArrayList<>();
                     cell.add(linkId);
                     break;
                 case LinkType.STYLE:
+                    if (style == null)
+                        style = new ArrayList<>();
                     style.add(linkId);
                     break;
             }

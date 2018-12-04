@@ -675,7 +675,7 @@ public class NodeBuilder {
         }
     }
 
-    public void clearLinks(Node node) {
+    public void clearLinks() {
         node.value = null;
         node.source = null;
         node.title = null;
