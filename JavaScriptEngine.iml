@@ -12,17 +12,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="SimpleGraphDB" />
     <orderEntry type="library" name="lib" level="project" />
-    <orderEntry type="module-library" scope="TEST">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../SimpleGraphDB/lib/opentest4j-1.0.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/../SimpleGraphDB/lib/apiguardian-api-1.0.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/../SimpleGraphDB/lib/junit-jupiter-api-5.0.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/../SimpleGraphDB/lib/junit-platform-commons-1.0.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="lib1" level="project" />
   </component>
 </module>
