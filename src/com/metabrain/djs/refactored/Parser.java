@@ -4,13 +4,19 @@ import com.metabrain.djs.refactored.node.Node;
 import com.metabrain.djs.refactored.node.NodeBuilder;
 import com.metabrain.djs.refactored.node.NodeStorage;
 import com.metabrain.djs.refactored.node.NodeType;
+import com.metabrain.gdb.Bytes;
 import jdk.nashorn.internal.ir.*;
 import jdk.nashorn.internal.parser.TokenType;
 import jdk.nashorn.internal.runtime.Context;
 import jdk.nashorn.internal.runtime.ErrorManager;
+import jdk.nashorn.internal.runtime.ParserException;
 import jdk.nashorn.internal.runtime.Source;
 import jdk.nashorn.internal.runtime.options.Options;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class Parser {
@@ -323,7 +329,7 @@ public class Parser {
         }
     }
 
-    public Node parse(String sourceString) {
+    public Node parse(Node module, String sourceString) throws ParserException {
         Options options = new Options("nashorn");
         options.set("anon.functions", true);
         options.set("parse.only", true);
@@ -332,8 +338,14 @@ public class Parser {
         Context context = new Context(options, errors, Thread.currentThread().getContextClassLoader());
         Source source = Source.sourceFor("test", sourceString);
         jdk.nashorn.internal.parser.Parser parser = new jdk.nashorn.internal.parser.Parser(context.getEnv(), source, errors);
-        // TODO catch parse error
-        return jsLine(null, parser.parse().getBody());
+        jdk.nashorn.internal.ir.Node rootParserNode = parser.parse();
+         if (rootParserNode == null){
+             throw new ParserException("");
+         }else{
+             // TODO catch parse error
+             return jsLine(module, ((FunctionNode) rootParserNode).getBody());
+         }
+
     }
 
 
