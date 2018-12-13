@@ -602,6 +602,25 @@ public class NodeBuilder {
         return null;
     }
 
+
+    public Node findStyle(byte[] title) {
+        if (node.id == null) commit();
+        Long titleId = storage.getDataId(title);
+        return findLocal(titleId);
+    }
+
+    public Node findStyle(Long titleId) {
+        if (titleId != null) {
+            for (int i = 0; i < getStylesCount(); i++) {
+                Node node = getStyleNode(i);
+                Long itemNode = node.title instanceof Node ? ((Node) node.title).id : (Long) node.title;
+                if (titleId.equals(itemNode))
+                    return node;
+            }
+        }
+        return null;
+    }
+
     public Node getValueOrSelf() {
         Node value = getValueNode();
         return value != null ? value : node;

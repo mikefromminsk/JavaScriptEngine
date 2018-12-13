@@ -339,12 +339,31 @@ public class Parser {
         Source source = Source.sourceFor("test", sourceString);
         jdk.nashorn.internal.parser.Parser parser = new jdk.nashorn.internal.parser.Parser(context.getEnv(), source, errors);
         jdk.nashorn.internal.ir.Node rootParserNode = parser.parse();
-         if (rootParserNode == null){
-             throw new ParserException("");
-         }else{
-             // TODO catch parse error
-             return jsLine(module, ((FunctionNode) rootParserNode).getBody());
-         }
+        if (rootParserNode == null) {
+            throw new ParserException("");
+        } else {
+            Block block = ((FunctionNode) rootParserNode).getBody();
+            Node node;
+            if (block.getStatementCount() > 1)
+                node = jsLine(module, block);
+            else{
+                node = jsLine(module, block.getStatements().get(0));
+
+                NodeBuilder builder = new NodeBuilder();
+                Node sourceCodeDataNode = builder.create(NodeType.STRING).setData(sourceString).commit();
+
+                Node sourceCodeTitle = builder.create(NodeType.STRING).setData("source_code").commit();
+                Node sourceCode = builder.set(node).findStyle(sourceCodeTitle.id);
+                if (sourceCode == null) {
+                    Node sourceCodeNode = builder.create(NodeType.VAR).setTitle(sourceCodeTitle).setValue(sourceCodeDataNode).commit();
+                    builder.set(node).addStyle(sourceCodeNode).commit();
+                } else {
+                    builder.set(sourceCode).setValue(sourceCodeDataNode).commit();
+                }
+
+            }
+            return node;
+        }
 
     }
 
