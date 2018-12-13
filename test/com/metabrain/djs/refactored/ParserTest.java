@@ -26,7 +26,7 @@ class ParserTest {
     }
 
     @Test
-    void parseSimple() throws IOException {
+    void parseSimple() {
         Parser parser = new Parser();
         try {
             parser.parse(null, "var wef = 1;");
@@ -37,7 +37,7 @@ class ParserTest {
 
 
     @Test
-    void parseException() throws IOException {
+    void parseException() {
         Parser parser = new Parser();
         Boolean parseError;
         try {
