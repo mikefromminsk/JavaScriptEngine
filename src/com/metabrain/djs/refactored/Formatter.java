@@ -53,7 +53,7 @@ public class Formatter {
     public static final String TRUE = "true";
     public static final String FALSE = "false";
 
-    private static String dataSimplification(NodeBuilder builder, Node node) {
+    private static Object dataSimplification(NodeBuilder builder, Node node) {
         DataStream dataStream = builder.set(node).getData();
         if (node.type == NodeType.STRING) {
             if (dataStream.length > NodeStorage.MAX_STORAGE_DATA_IN_DB)
@@ -61,7 +61,7 @@ public class Formatter {
             else
                 return STRING_PREFIX + String.valueOf(dataStream.readChars());
         } else {
-            return String.valueOf(dataStream.readChars());
+            return dataStream.getObject();
         }
     }
 

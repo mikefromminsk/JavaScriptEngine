@@ -713,4 +713,9 @@ public class NodeBuilder {
         node.prop = null;
         node.style = null;
     }
+
+    public NodeBuilder removeAllNext() {
+        node.next = null;
+        return this;
+    }
 }

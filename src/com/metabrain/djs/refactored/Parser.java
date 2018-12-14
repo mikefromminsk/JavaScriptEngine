@@ -205,7 +205,7 @@ public class Parser {
                     Node paramNode = builder.create().setTitle(titleData).commit();
                     builder.set(functionNode).addParam(paramNode);
                 }
-                builder.set(functionNode).commit();
+                builder.set(functionNode).removeAllNext().commit();
                 for (jdk.nashorn.internal.ir.Node line : function.getBody().getStatements()) {
                     Node lineNode = jsLine(functionNode, line);
                     builder.set(functionNode).addNext(lineNode);
@@ -342,29 +342,21 @@ public class Parser {
         if (rootParserNode == null) {
             throw new ParserException("");
         } else {
-            Block block = ((FunctionNode) rootParserNode).getBody();
-            Node node;
-            if (block.getStatementCount() > 1)
-                node = jsLine(module, block);
-            else{
-                node = jsLine(module, block.getStatements().get(0));
+            Node node = jsLine(module, rootParserNode);
 
-                NodeBuilder builder = new NodeBuilder();
-                Node sourceCodeDataNode = builder.create(NodeType.STRING).setData(sourceString).commit();
+            NodeBuilder builder = new NodeBuilder();
+            Node sourceCodeDataNode = builder.create(NodeType.STRING).setData(sourceString).commit();
 
-                Node sourceCodeTitle = builder.create(NodeType.STRING).setData("source_code").commit();
-                Node sourceCode = builder.set(node).findStyle(sourceCodeTitle.id);
-                if (sourceCode == null) {
-                    Node sourceCodeNode = builder.create(NodeType.VAR).setTitle(sourceCodeTitle).setValue(sourceCodeDataNode).commit();
-                    builder.set(node).addStyle(sourceCodeNode).commit();
-                } else {
-                    builder.set(sourceCode).setValue(sourceCodeDataNode).commit();
-                }
-
+            Node sourceCodeTitle = builder.create(NodeType.STRING).setData("source_code").commit();
+            Node sourceCode = builder.set(module).findStyle(sourceCodeTitle.id);
+            if (sourceCode == null) {
+                Node sourceCodeNode = builder.create(NodeType.VAR).setTitle(sourceCodeTitle).setValue(sourceCodeDataNode).commit();
+                builder.set(module).addStyle(sourceCodeNode).commit();
+            } else {
+                builder.set(sourceCode).setValue(sourceCodeDataNode).commit();
             }
             return node;
         }
-
     }
 
 
