@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/JavaScriptEngine.iml" filepath="$PROJECT_DIR$/JavaScriptEngine.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../SimpleGraphDB/SimpleGraphDB.iml" filepath="$PROJECT_DIR$/../SimpleGraphDB/SimpleGraphDB.iml" />
     </modules>
   </component>
 </project>

@@ -3,7 +3,7 @@ package com.metabrain.djs;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.metabrain.djs.node.*;
-import com.metabrain.djs.refactored.node.*;
+import com.metabrain.djs.node.*;
 
 import java.util.*;
 /*
