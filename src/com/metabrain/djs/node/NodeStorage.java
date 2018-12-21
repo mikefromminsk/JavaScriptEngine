@@ -1,4 +1,4 @@
-package com.metabrain.djs.refactored.node;
+package com.metabrain.djs.node;
 
 import com.metabrain.gdb.*;
 import com.metabrain.gdb.tree.Crc16;

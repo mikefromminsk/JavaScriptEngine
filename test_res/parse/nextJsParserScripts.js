@@ -1,3 +1,6 @@
+for (var i = 0; i < var10; i++)
+        var par = 1;
+
 var var2 = {
     par: 1,
     met: function(){

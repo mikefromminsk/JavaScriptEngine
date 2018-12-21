@@ -1,4 +1,4 @@
-package com.metabrain.djs.refactored.node;
+package com.metabrain.djs.node;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -50,7 +50,7 @@ public class NodeBuilder {
     }
 
     public NodeBuilder setData(Double number) {
-        setData("" + number);
+        setData(number.toString());
         return this;
     }
 

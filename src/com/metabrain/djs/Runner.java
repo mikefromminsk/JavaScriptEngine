@@ -1,10 +1,10 @@
-package com.metabrain.djs.refactored;
+package com.metabrain.djs;
 
 
-import com.metabrain.djs.refactored.node.DataStream;
-import com.metabrain.djs.refactored.node.Node;
-import com.metabrain.djs.refactored.node.NodeBuilder;
-import com.metabrain.djs.refactored.node.NodeType;
+import com.metabrain.djs.node.DataStream;
+import com.metabrain.djs.node.Node;
+import com.metabrain.djs.node.NodeBuilder;
+import com.metabrain.djs.node.NodeType;
 
 public class Runner{
 

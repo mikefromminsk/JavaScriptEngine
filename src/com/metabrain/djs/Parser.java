@@ -1,10 +1,9 @@
-package com.metabrain.djs.refactored;
+package com.metabrain.djs;
 
-import com.metabrain.djs.refactored.node.Node;
-import com.metabrain.djs.refactored.node.NodeBuilder;
-import com.metabrain.djs.refactored.node.NodeStorage;
-import com.metabrain.djs.refactored.node.NodeType;
-import com.metabrain.gdb.Bytes;
+import com.metabrain.djs.node.NodeStorage;
+import com.metabrain.djs.node.NodeType;
+import com.metabrain.djs.node.Node;
+import com.metabrain.djs.node.NodeBuilder;
 import jdk.nashorn.internal.ir.*;
 import jdk.nashorn.internal.parser.TokenType;
 import jdk.nashorn.internal.runtime.Context;
@@ -13,10 +12,6 @@ import jdk.nashorn.internal.runtime.ParserException;
 import jdk.nashorn.internal.runtime.Source;
 import jdk.nashorn.internal.runtime.options.Options;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class Parser {
@@ -342,6 +337,9 @@ public class Parser {
         if (rootParserNode == null) {
             throw new ParserException("");
         } else {
+            if (module == null)
+                module = builder.create().commit();
+
             Node node = jsLine(module, rootParserNode);
 
             NodeBuilder builder = new NodeBuilder();

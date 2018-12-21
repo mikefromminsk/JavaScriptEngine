@@ -1,6 +1,6 @@
-package com.metabrain.djs.refactored;
+package com.metabrain.djs;
 
-import com.metabrain.djs.refactored.node.*;
+import com.metabrain.djs.node.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;

@@ -1,9 +1,10 @@
-package com.metabrain.djs.refactored;
+package com.metabrain.djs;
 
-import com.metabrain.djs.refactored.node.Node;
-import com.metabrain.djs.refactored.node.NodeBuilder;
-import com.metabrain.djs.refactored.node.NodeType;
+import com.metabrain.djs.node.Node;
+import com.metabrain.djs.node.NodeBuilder;
+import com.metabrain.djs.node.NodeType;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -42,7 +43,7 @@ class RunnerTest {
 
                     Node testValue = builder.set(testVar).getValueNode();
                     assertNotNull(testValue);
-                    assertEquals(NodeType.BOOL, testValue.type);
+                    Assertions.assertEquals(NodeType.BOOL, testValue.type);
                     Boolean testData = (Boolean) builder.set(testValue).getData().getObject();
                     if (testData != null && !testData && module != null) {
                         System.out.println(currentScript.getAbsolutePath());

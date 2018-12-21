@@ -1,4 +1,4 @@
-package com.metabrain.djs.refactored.node;
+package com.metabrain.djs.node;
 
 import com.metabrain.gdb.Bytes;
 import com.metabrain.gdb.MetaCell;

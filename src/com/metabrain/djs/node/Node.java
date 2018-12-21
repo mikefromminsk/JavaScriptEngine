@@ -1,4 +1,4 @@
-package com.metabrain.djs.refactored.node;
+package com.metabrain.djs.node;
 
 import com.metabrain.gdb.Bytes;
 import com.metabrain.gdb.InfinityArrayCell;
@@ -39,9 +39,9 @@ public class Node implements InfinityArrayCell {
     public byte[] build() {
         ArrayList<Long> links = new ArrayList<>();
         listLinks((linkType, link, singleValue) -> {
-            Long linkId = link instanceof Long ? (Long) link : ((Node) link).id;
-            long dataLink = linkId * 256L + (long) linkType;
-            links.add(dataLink);
+                Long linkId = link instanceof Long ? (Long) link : ((Node) link).id;
+                long dataLink = linkId * 256L + (long) linkType;
+                links.add(dataLink);
         });
         return Bytes.fromLongList(links);
     }

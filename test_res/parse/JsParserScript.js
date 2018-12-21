@@ -1,7 +1,3 @@
-
-for (var i = 0; i < var10; i++)
-        var par = 1;
-
 function func3(par){
     var ss = 0;
     if (par == 1)
@@ -16,7 +12,6 @@ func1();
 function func1(par){
     return par;
 }
-
 var variable7 = -1;
 var variable6 = {"tes": 1, "te2": 1};
 var variable5 = [1, 2];
